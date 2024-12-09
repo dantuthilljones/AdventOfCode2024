@@ -5,7 +5,7 @@ import me.detj.utils.Utils;
 
 import java.util.List;
 
-public class Solver4 {
+public class Solver04 {
     public static void main(String[] args) {
         var wordSearch = Inputs.parseCharMatrix("input_04.txt");
         int xMasses = Utils.searchForWord(wordSearch, List.of('X', 'M', 'A', 'S'));

@@ -1,7 +1,16 @@
 package me.detj.utils;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.OrderedMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
+
 import java.util.*;
 import java.util.function.Function;
+
+import static java.util.Collections.swap;
 
 public class Utils {
 
@@ -163,5 +172,301 @@ public class Utils {
             return false;
         }
         return wordSearch.get(point.getY()).get(point.getX()).equals(c);
+    }
+
+    public static int countMiddleNumbersOfValidUpdates(List<List<Integer>> pages, List<Point> rules) {
+        int sum = 0;
+        for (List<Integer> page : pages) {
+            if (pageInRightOrder(page, rules)) {
+                sum += page.get(page.size() / 2);
+            }
+        }
+        return sum;
+    }
+
+    public static int countMiddleNumbersOfFixedUpdates(List<List<Integer>> pages, List<Point> rules) {
+        int sum = 0;
+        for (List<Integer> page : pages) {
+            if (pageInRightOrder(page, rules)) {
+                continue;
+            }
+
+            page = fixPage(page, rules);
+            sum += page.get(page.size() / 2);
+        }
+        return sum;
+    }
+
+    private static List<Integer> fixPage(List<Integer> page, List<Point> rules) {
+        page = new ArrayList<>(page);
+        MultiValuedMap<Integer, Integer> rulesMap = generateRulesMap(rules);
+
+        while (!pageInRightOrder(page, rules)) {
+            for (int i = 0; i < page.size(); i++) {
+                swapIfRulesSaySo(page, i, rulesMap);
+            }
+        }
+        return page;
+    }
+
+    private static void swapIfRulesSaySo(List<Integer> pages, int i, MultiValuedMap<Integer, Integer> rulesMap) {
+        int page = pages.get(i);
+        Collection<Integer> mustBeAfter = rulesMap.get(page);
+        if (mustBeAfter.isEmpty()) {
+            return;
+        }
+
+        for (int j = 0; j < pages.size(); j++) {
+            int otherPage = pages.get(j);
+            if (mustBeAfter.contains(otherPage)) {
+                swap(pages, i, j);
+                return;// need to return because the page has changed index
+            }
+        }
+
+
+    }
+
+    private static MultiValuedMap<Integer, Integer> generateRulesMap(List<Point> rules) {
+        MultiValuedMap<Integer, Integer> rulesMap = new HashSetValuedHashMap<>();
+        for (Point rule : rules) {
+            rulesMap.put(rule.getX(), rule.getY());
+        }
+        return rulesMap;
+    }
+
+    private static boolean pageInRightOrder(List<Integer> page, List<Point> rules) {
+        for (Point rule : rules) {
+            if (ruleBroken(page, rule)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean ruleBroken(List<Integer> pages, Point rule) {
+        boolean seenY = false;
+
+        for (Integer page : pages) {
+            if (page.equals(rule.getY())) {
+                seenY = true;
+            } else if (seenY && page.equals(rule.getX())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int countGuardPositions(Grid<Character> map) {
+        Point guardPosition = map.findFirst('^');
+
+        int guardMove = 0;
+        List<Function<Point, Point>> guardMoves = List.of(
+                Point::moveUp,
+                Point::moveRight,
+                Point::moveDown,
+                Point::moveLeft
+        );
+
+        map.set(guardPosition, 'X');
+
+        while (map.inBounds(guardPosition)) {
+            Function<Point, Point> move = guardMoves.get(guardMove);
+            Point nextPosition = move.apply(guardPosition);
+
+            //If we hit an obstacle, change the guard direction
+            if (map.pointEquals(nextPosition, '#')) {
+                guardMove = (guardMove + 1) % 4;
+            } else {
+                guardPosition = nextPosition;
+            }
+            map.set(guardPosition, 'X');
+        }
+
+        // Now guard is out of bounds
+        return map.count('X');
+    }
+
+    public static int countObstacleLoops(Grid<Character> original) {
+        Grid<Character> map = original.shallowCopy();
+        Point guardPosition = map.findFirst('^');
+
+        int loops = 0;
+
+        for (int x = 0; x < map.getWidth(); x++) {
+            for (int y = 0; y < map.getHeight(); y++) {
+                if (guardPosition.equals(new Point(x, y))) {
+                    continue;
+                }
+                map.set(x, y, '#');
+                if (guardLoops(map)) {
+                    loops++;
+                }
+                map.set(x, y, original.get(x, y));
+            }
+        }
+
+        return loops;
+    }
+
+
+    public static boolean guardLoops(Grid<Character> map) {
+        Point guardPosition = map.findFirst('^');
+
+        int guardDirection = 0;
+        List<Function<Point, Point>> guardMoves = List.of(
+                Point::moveUp,
+                Point::moveRight,
+                Point::moveDown,
+                Point::moveLeft
+        );
+
+        Set<DTPair<Point, Integer>> history = new HashSet<>();
+        while (map.inBounds(guardPosition)) {
+            DTPair<Point, Integer> positionAndDirection = new DTPair<>(guardPosition, guardDirection);
+            if (!history.add(positionAndDirection)) {
+                return true;
+            }
+
+            Function<Point, Point> move = guardMoves.get(guardDirection);
+            Point nextPosition = move.apply(guardPosition);
+            //If we hit an obstacle, change the guard direction
+            if (map.pointEquals(nextPosition, '#')) {
+                guardDirection = (guardDirection + 1) % 4;
+                continue;
+            }
+
+            // Move to the next position
+            guardPosition = nextPosition;
+        }
+
+        // If we ended up out of bounds then there was no loop
+        return false;
+    }
+
+    public static long canEvaluateToLabel(List<DTPair<Long, List<Long>>> labelledLists) {
+        long sum = 0;
+        for (var labelledList : labelledLists) {
+            if (canEvaluateToLabel(labelledList)) {
+                sum += labelledList.getLeft();
+            }
+        }
+        return sum;
+    }
+
+    private static boolean canEvaluateToLabel(DTPair<Long, List<Long>> labelledList) {
+        long label = labelledList.getLeft();
+        List<Long> values = labelledList.getRight();
+        return canEvaluateToLabel(label, values, values.get(0), 1);
+    }
+
+    private static boolean canEvaluateToLabel(long label, List<Long> values, long current, int index) {
+        // terminating condition
+        if (index == values.size()) {
+            return label == current;
+        }
+
+        return canEvaluateToLabel(label, values, current + values.get(index), index + 1)
+                || canEvaluateToLabel(label, values, current * values.get(index), index + 1);
+
+    }
+
+    public static long canEvaluateToLabelWithConcatenation(List<DTPair<Long, List<Long>>> labelledLists) {
+        long sum = 0;
+        for (var labelledList : labelledLists) {
+            if (canEvaluateToLabelWithConcatenation(labelledList)) {
+                sum += labelledList.getLeft();
+            }
+        }
+        return sum;
+    }
+
+    private static boolean canEvaluateToLabelWithConcatenation(DTPair<Long, List<Long>> labelledList) {
+        long label = labelledList.getLeft();
+        List<Long> values = labelledList.getRight();
+
+        return canEvaluateToLabelWithConcatenation(label, values, values.get(0), 1);
+    }
+
+    private static boolean canEvaluateToLabelWithConcatenation(long label, List<Long> values, long current, int index) {
+        // terminating condition
+        if (index == values.size()) {
+            return label == current;
+        }
+
+        return canEvaluateToLabelWithConcatenation(label, values, current + values.get(index), index + 1)
+                || canEvaluateToLabelWithConcatenation(label, values, current * values.get(index), index + 1)
+                || canEvaluateToLabelWithConcatenation(label, values, concatenate(current, values.get(index)), index + 1);
+    }
+
+    private static long concatenate(long current, long next) {
+        return Long.parseLong(String.valueOf(current) + next);
+    }
+
+    public static int countAntiNodes(Grid<Character> map) {
+        Set<Point> antiNodes = new HashSet<>();
+
+        MultiValuedMap<Character, Point> freqToAntenna = map.pointsByValue();
+
+        for (Character freq : freqToAntenna.keySet()) {
+            if (freq.equals('.')) {
+                continue;
+            }
+
+            List<Point> antennas = (List<Point>) freqToAntenna.get(freq);
+            for (int firstIndex = 0; firstIndex < antennas.size() - 1; firstIndex++) {
+                for (int secondIndex = firstIndex + 1; secondIndex < antennas.size(); secondIndex++) {
+                    Point first = antennas.get(firstIndex);
+                    Point second = antennas.get(secondIndex);
+
+                    Point difference = second.minus(first);
+
+                    Point antiNode1 = second.plus(difference);
+                    if (map.inBounds(antiNode1)) {
+                        antiNodes.add(antiNode1);
+                    }
+
+                    Point antiNode2 = first.minus(difference);
+                    if (map.inBounds(antiNode2)) {
+                        antiNodes.add(antiNode2);
+                    }
+                }
+            }
+        }
+        return antiNodes.size();
+    }
+
+    public static int countAntiNodesWithHarmonics(Grid<Character> map) {
+        Set<Point> antiNodes = new HashSet<>();
+
+        MultiValuedMap<Character, Point> freqToAntenna = map.pointsByValue();
+
+        for (Character freq : freqToAntenna.keySet()) {
+            if (freq.equals('.')) {
+                continue;
+            }
+
+            List<Point> antennas = (List<Point>) freqToAntenna.get(freq);
+            for (int firstIndex = 0; firstIndex < antennas.size() - 1; firstIndex++) {
+                for (int secondIndex = firstIndex + 1; secondIndex < antennas.size(); secondIndex++) {
+                    Point first = antennas.get(firstIndex);
+                    Point second = antennas.get(secondIndex);
+
+                    Point difference = second.minus(first);
+
+                    Point antiNode1 = second;
+                    while(map.inBounds(antiNode1)) {
+                        antiNodes.add(antiNode1);
+                        antiNode1 = antiNode1.plus(difference);
+                    }
+                    Point antiNode2 = first;
+                    while(map.inBounds(antiNode2)) {
+                        antiNodes.add(antiNode2);
+                        antiNode2 = antiNode2.minus(difference);
+                    }
+                }
+            }
+        }
+        return antiNodes.size();
     }
 }

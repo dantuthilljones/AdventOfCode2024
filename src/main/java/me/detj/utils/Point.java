@@ -78,4 +78,12 @@ public class Point {
     public Point move(int x, int y) {
         return of(this.x + x, this.y + y);
     }
+
+    public Point minus(Point other) {
+        return of(x - other.getX(), y - other.getY());
+    }
+
+    public Point plus(Point other) {
+        return of(x + other.getX(), y + other.getY());
+    }
 }

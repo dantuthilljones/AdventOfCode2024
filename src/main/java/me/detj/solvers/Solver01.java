@@ -5,7 +5,7 @@ import me.detj.utils.Utils;
 
 import java.io.IOException;
 
-public class Solver1 {
+public class Solver01 {
 
     public static void main(String[] args) throws IOException {
         var input = Inputs.parseListOfPairs("input_01.txt");

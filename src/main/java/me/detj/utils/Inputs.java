@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Inputs {
     @SneakyThrows()
@@ -60,11 +61,56 @@ public class Inputs {
         List<String> lines = readLines(file);
 
         List<List<Character>> results = new ArrayList<>(lines.size());
-        for (int i = lines.size() -1; i >= 0; i--) {
+        for (int i = lines.size() - 1; i >= 0; i--) {
             String line = lines.get(i);
-            List<Character> chars = line.chars().mapToObj(c -> (char) c).toList();
+            List<Character> chars = line.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
             results.add(chars);
         }
         return results;
+    }
+
+    public static DTPair<List<Point>, List<List<Integer>>> parsePageRules(String file) {
+        boolean start = true;
+
+        List<Point> rules = new ArrayList<>();
+        List<List<Integer>> manuals = new ArrayList<>();
+
+        for (String line : readLines(file)) {
+            if (line.isEmpty()) {
+                start = false;
+                continue;
+            }
+
+            if(start) {
+                String[] split = StringUtils.split(line, "|");
+                rules.add(Point.of(Integer.parseInt(split[0]), Integer.parseInt(split[1])));
+            } else {
+                String[] split = StringUtils.split(line, ",");
+                List<Integer> pages = Arrays.stream(split).map(Integer::parseInt).toList();
+                manuals.add(pages);
+            }
+        }
+
+        return new DTPair<>(rules, manuals);
+    }
+
+    public static Grid<Character> parseCharGrid(String file) {
+        return new Grid<>(parseCharMatrix(file));
+    }
+
+    public static List<DTPair<Long, List<Long>>> parseLabelledList(String file) {
+        List<String> lines = readLines(file);
+
+        List<DTPair<Long, List<Long>>> result = new ArrayList<>();
+        for(String line : lines) {
+            String[] split = line.split(":");
+            long label = Long.parseLong(split[0]);
+
+            List<Long> values = Arrays.stream(split[1].trim().split(" ")).map(Long::parseLong).toList();
+
+            result.add(new DTPair<>(label, values));
+        }
+
+        return result;
     }
 }

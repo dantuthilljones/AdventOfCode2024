@@ -5,7 +5,7 @@ import me.detj.utils.Inputs;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Solver3 {
+public class Solver03 {
     public static void main(String[] args) {
         solveFirst();
         solveSecond();
