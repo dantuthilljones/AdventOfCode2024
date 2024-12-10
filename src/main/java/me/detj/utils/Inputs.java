@@ -113,4 +113,21 @@ public class Inputs {
 
         return result;
     }
+
+    public static List<Integer> parseDenseIntList(String file) {
+        String content = readFile(file);
+        List<Integer> list = new ArrayList<>(content.length());
+        for(char c : content.toCharArray()) {
+            list.add(Integer.parseInt("" + c));
+        }
+        return list;
+    }
+
+    public static Grid<Integer> parseDenseIntGrid(String file) {
+        var chars = parseCharMatrix(file);
+        List<List<Integer>> grid = chars.stream()
+                .map(row -> row.stream().map(c -> Integer.parseInt(c.toString())).collect(Collectors.toList()))
+                .collect(Collectors.toList());
+        return new Grid<>(grid);
+    }
 }

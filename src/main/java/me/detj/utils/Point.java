@@ -2,8 +2,31 @@ package me.detj.utils;
 
 import lombok.Value;
 
+import java.util.List;
+import java.util.function.Function;
+
 @Value
 public class Point {
+
+
+    public static final List<Function<Point, Point>> ALL_DIRECTIONS = List.of(
+            Point::moveRight,
+            Point::moveDownRight,
+            Point::moveDown,
+            Point::moveDownLeft,
+            Point::moveLeft,
+            Point::moveUpLeft,
+            Point::moveUp,
+            Point::moveUpRight
+    );
+
+    public static final List<Function<Point, Point>> BASIC_DIRECTIONS = List.of(
+            Point::moveUp,
+            Point::moveRight,
+            Point::moveDown,
+            Point::moveLeft
+    );
+
     int x;
     int y;
 

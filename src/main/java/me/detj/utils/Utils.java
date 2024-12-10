@@ -1,13 +1,16 @@
 package me.detj.utils;
 
-import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.OrderedMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static java.util.Collections.swap;
@@ -131,7 +134,7 @@ public class Utils {
         int found = 0;
         for (int y = 0; y < wordSearch.size(); y++) {
             for (int x = 0; x < wordSearch.get(0).size(); x++) {
-                for (Function<Point, Point> directions : allDirections()) {
+                for (Function<Point, Point> directions : Point.ALL_DIRECTIONS) {
                     if (findWord(wordSearch, word, Point.of(x, y), directions)) {
                         found++;
                     }
@@ -139,19 +142,6 @@ public class Utils {
             }
         }
         return found;
-    }
-
-    public static List<Function<Point, Point>> allDirections() {
-        return List.of(
-                Point::moveRight,
-                Point::moveDownRight,
-                Point::moveDown,
-                Point::moveDownLeft,
-                Point::moveLeft,
-                Point::moveUpLeft,
-                Point::moveUp,
-                Point::moveUpRight
-        );
     }
 
     private static boolean findWord(List<List<Character>> wordSearch, List<Character> word, Point point, Function<Point, Point> pointStepper) {
@@ -261,12 +251,9 @@ public class Utils {
         Point guardPosition = map.findFirst('^');
 
         int guardMove = 0;
-        List<Function<Point, Point>> guardMoves = List.of(
-                Point::moveUp,
-                Point::moveRight,
-                Point::moveDown,
-                Point::moveLeft
-        );
+
+        // Important that the directions are in this order: UP, RIGHT, DOWN, LEFT
+        List<Function<Point, Point>> guardMoves = Point.BASIC_DIRECTIONS;
 
         map.set(guardPosition, 'X');
 
@@ -455,12 +442,12 @@ public class Utils {
                     Point difference = second.minus(first);
 
                     Point antiNode1 = second;
-                    while(map.inBounds(antiNode1)) {
+                    while (map.inBounds(antiNode1)) {
                         antiNodes.add(antiNode1);
                         antiNode1 = antiNode1.plus(difference);
                     }
                     Point antiNode2 = first;
-                    while(map.inBounds(antiNode2)) {
+                    while (map.inBounds(antiNode2)) {
                         antiNodes.add(antiNode2);
                         antiNode2 = antiNode2.minus(difference);
                     }
@@ -468,5 +455,160 @@ public class Utils {
             }
         }
         return antiNodes.size();
+    }
+
+    public static long compactifyAndChecksum(List<Integer> diskMap) {
+        List<Integer> disk = calculateDiskLayout(diskMap);
+        disk = compactifyDisk(disk);
+        return calculateChecksum(disk);
+    }
+
+    private static List<Integer> calculateDiskLayout(List<Integer> diskMap) {
+        List<Integer> disk = new ArrayList<>();
+        for (int i = 0; i < diskMap.size(); i++) {
+
+            // if i is even, it is a file, if i is odd, it is free space
+            int value = i % 2 == 0 ? i / 2 : -1;
+
+            for (int j = 0; j < diskMap.get(i); j++) {
+                disk.add(value);
+            }
+        }
+        return disk;
+    }
+
+    private static List<Integer> compactifyDisk(List<Integer> disk) {
+        disk = new ArrayList<>(disk);
+        int left = 0;
+        int right = disk.size() - 1;
+
+        while (left < right) {
+            if (disk.get(right) != -1) {
+                while (disk.get(left) != -1 && left < right) {
+                    left++;
+                }
+                swap(disk, left, right);
+            }
+            right--;
+        }
+        return disk;
+    }
+
+    private static long calculateChecksum(List<Integer> disk) {
+        long sum = 0;
+        for (int i = 0; i < disk.size(); i++) {
+            long value = disk.get(i);
+            sum += i * (value != -1 ? value : 0);
+        }
+        return sum;
+    }
+
+    public static long compactifyWithoutFragmentationAndChecksum(List<Integer> diskMap) {
+        List<Integer> disk = calculateDiskLayout(diskMap);
+        disk = compactifyDiskWithoutFragmentation(disk);
+        return calculateChecksum(disk);
+    }
+
+
+    private static List<Integer> compactifyDiskWithoutFragmentation(List<Integer> disk) {
+        disk = new ArrayList<>(disk);
+
+        int i = disk.size() - 1;
+        while (i >= 0) {
+            if (disk.get(i) == -1) {
+                i--;
+                continue;
+            }
+
+            int startOfBlock = getStartOfBlock(disk, i);
+            int sizeOfBlock = i - startOfBlock + 1;
+
+            // find block that fits
+            int newBlockStartIndex = findFreeBlock(disk, startOfBlock, sizeOfBlock);
+            if (startOfBlock != -1 && newBlockStartIndex != -1) {
+                swapBlock(disk, startOfBlock, newBlockStartIndex, sizeOfBlock);
+            }
+            i = startOfBlock - 1;
+        }
+        return disk;
+    }
+
+    private static void swapBlock(List<Integer> disk, int startOfBlock, int newBlockStartIndex, int sizeOfBlock) {
+        for (int i = 0; i < sizeOfBlock; i++) {
+            swap(disk, startOfBlock + i, newBlockStartIndex + i);
+        }
+    }
+
+    private static int findFreeBlock(List<Integer> disk, int maxIndex, int sizeOfBlock) {
+        for (int i = 0; i < maxIndex; i++) {
+            if (disk.get(i) != -1) {
+                continue;
+            }
+            if (isBlockFree(disk, i, sizeOfBlock)) {
+                return i;
+            } else {
+                i++;
+            }
+        }
+        return -1;
+    }
+
+    private static boolean isBlockFree(List<Integer> disk, int blockStartIndex, int sizeOfBlock) {
+        for (int j = blockStartIndex; j < blockStartIndex + sizeOfBlock; j++) {
+            if (disk.get(j) != -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static int getStartOfBlock(List<Integer> disk, int i) {
+        int j;
+        for (j = i; j >= 0; j--) {
+            if (j == 0 || !disk.get(j - 1).equals(disk.get(i))) {
+                break;
+            }
+        }
+        return j;
+    }
+
+    public static int scoreTrails(Grid<Integer> map) {
+        List<Point> startPoints = map.findAll(0);
+
+        int score = 0;
+        for (Point start : startPoints) {
+            Set<Point> peaks = new HashSet<>();
+            reachablePeaks(map, start, peaks);
+            score += peaks.size();
+        }
+        return score;
+    }
+
+    public static int scoreTrailsDistinct(Grid<Integer> map) {
+        List<Point> startPoints = map.findAll(0);
+
+        int score = 0;
+        for (Point start : startPoints) {
+            List<Point> peaks = new ArrayList<>();
+            reachablePeaks(map, start, peaks);
+            score += peaks.size();
+        }
+        return score;
+    }
+
+    private static void reachablePeaks(Grid<Integer> map, Point current, Collection<Point> peaks) {
+        Integer height = map.get(current);
+
+        if (height == 9) {
+            peaks.add(current);
+            return;
+        }
+
+        for (Function<Point, Point> direction : Point.BASIC_DIRECTIONS) {
+            Point next = direction.apply(current);
+            if (map.inBounds(next) && map.pointEquals(next, height + 1)) {
+                reachablePeaks(map, next, peaks);
+            }
+        }
     }
 }
