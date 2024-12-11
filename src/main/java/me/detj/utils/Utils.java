@@ -8,7 +8,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -610,5 +612,91 @@ public class Utils {
                 reachablePeaks(map, next, peaks);
             }
         }
+    }
+
+    public static int countStonesAfterBlinking(List<Long> stones, int times) {
+        LinkedList<Long> linkedStones = new LinkedList<>(stones);
+        for (int i = 0; i < times; i++) {
+            blinkStones(linkedStones);
+        }
+        return linkedStones.size();
+    }
+
+    public static void blinkStones(LinkedList<Long> stones) {
+        ListIterator<Long> iterator = stones.listIterator();
+
+        while (iterator.hasNext()) {
+            long num = iterator.next();
+
+            // if 0, set to 1
+            if (num == 0) {
+                iterator.set(1L);
+                continue;
+            }
+
+            // if even number of digits, split in two
+            String string = String.valueOf(num);
+            if (string.length() % 2 == 0) {
+                int half = string.length() / 2;
+                long firstHalf = Long.parseLong(string.substring(0, half));
+                long secondHalf = Long.parseLong(string.substring(half));
+                iterator.set(firstHalf);
+                iterator.add(secondHalf);
+                continue;
+            }
+
+            iterator.set(num * 2024);
+        }
+    }
+
+    public static long countStonesAfterBlinkingDP(List<Long> stones, int times) {
+        Map<Long, Map<Long, Long>> stoneNumToSplit = new HashMap<>();
+        long totalStones = 0;
+
+        for (long stone : stones) {
+            totalStones += calculateStoneNumberOfSplits(stoneNumToSplit, stone, times);
+        }
+
+        return totalStones;
+    }
+
+    private static long calculateStoneNumberOfSplits(Map<Long, Map<Long, Long>> stoneNumToSplit, long num, long iterations) {
+        // last iteration
+        if (iterations == 1) {
+            if (num == 0) {
+                return 1;
+            }
+            String string = String.valueOf(num);
+            if (string.length() % 2 == 0) {
+                return 2;
+            } else {
+                return 1;
+            }
+        }
+
+        Map<Long, Long> stonesAfterIterations = stoneNumToSplit.computeIfAbsent(num, k -> new HashMap<>());
+        Long stones = stonesAfterIterations.get(iterations);
+
+        if (stones != null) {
+            return stones;
+        }
+
+        if (num == 0) {
+            stones = calculateStoneNumberOfSplits(stoneNumToSplit, 1, iterations - 1);
+            stonesAfterIterations.put(iterations, stones);
+            return stones;
+        }
+
+        String string = String.valueOf(num);
+        if (string.length() % 2 == 0) { // if even number of digits, split in two
+            int half = string.length() / 2;
+            long firstHalf = Long.parseLong(string.substring(0, half));
+            long secondHalf = Long.parseLong(string.substring(half));
+            stones = calculateStoneNumberOfSplits(stoneNumToSplit, firstHalf, iterations - 1) + calculateStoneNumberOfSplits(stoneNumToSplit, secondHalf, iterations - 1);
+        } else {  // else times by 2024
+            stones = calculateStoneNumberOfSplits(stoneNumToSplit, num * 2024, iterations - 1);
+        }
+        stonesAfterIterations.put(iterations, stones);
+        return stones;
     }
 }

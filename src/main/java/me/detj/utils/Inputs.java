@@ -130,4 +130,13 @@ public class Inputs {
                 .collect(Collectors.toList());
         return new Grid<>(grid);
     }
+
+    public static List<Long> parseIntList(String file) {
+        String content = readFile(file);
+        List<Long> list = new ArrayList<>();
+        for(String num : content.split(" ")) {
+            list.add(Long.parseLong(num));
+        }
+        return list;
+    }
 }
