@@ -11,6 +11,6 @@ public class Solver11 {
         System.out.printf("Solution Part 1: %d\n", numStones);
 
         long numStones75 = Utils.countStonesAfterBlinkingDP(stones, 75);
-        System.out.printf("Solution Part 1: %d\n", numStones75);
+        System.out.printf("Solution Part 2: %d\n", numStones75);
     }
 }

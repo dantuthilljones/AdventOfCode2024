@@ -58,6 +58,10 @@ public class Grid<T> {
         return Objects.equals(get(x, y), value);
     }
 
+    public boolean pointsAreEqual(Point point1, Point point2) {
+        return pointEquals(point1, get(point2));
+    }
+
     public int count(T value) {
         int count = 0;
         for (int x = 0; x < getWidth(); x++) {
