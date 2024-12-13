@@ -109,4 +109,8 @@ public class Point {
     public Point plus(Point other) {
         return of(x + other.getX(), y + other.getY());
     }
+
+    public Point times(int a) {
+        return of(x * a, y * a);
+    }
 }

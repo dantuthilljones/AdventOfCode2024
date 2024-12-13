@@ -11,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Inputs {
@@ -81,7 +83,7 @@ public class Inputs {
                 continue;
             }
 
-            if(start) {
+            if (start) {
                 String[] split = StringUtils.split(line, "|");
                 rules.add(Point.of(Integer.parseInt(split[0]), Integer.parseInt(split[1])));
             } else {
@@ -102,7 +104,7 @@ public class Inputs {
         List<String> lines = readLines(file);
 
         List<DTPair<Long, List<Long>>> result = new ArrayList<>();
-        for(String line : lines) {
+        for (String line : lines) {
             String[] split = line.split(":");
             long label = Long.parseLong(split[0]);
 
@@ -117,7 +119,7 @@ public class Inputs {
     public static List<Integer> parseDenseIntList(String file) {
         String content = readFile(file);
         List<Integer> list = new ArrayList<>(content.length());
-        for(char c : content.toCharArray()) {
+        for (char c : content.toCharArray()) {
             list.add(Integer.parseInt("" + c));
         }
         return list;
@@ -134,9 +136,42 @@ public class Inputs {
     public static List<Long> parseIntList(String file) {
         String content = readFile(file);
         List<Long> list = new ArrayList<>();
-        for(String num : content.split(" ")) {
+        for (String num : content.split(" ")) {
             list.add(Long.parseLong(num));
         }
         return list;
+    }
+
+    public static List<ClawMachine> parseClawMachines(String file) {
+        List<ClawMachine> machines = new ArrayList<>();
+
+        List<String> lines = readLines(file);
+        for (int i = 0; i < lines.size(); i += 4) {
+            Point a = parsePoint(lines.get(i));
+            Point b = parsePoint(lines.get(i + 1));
+            Point prize = parsePoint(lines.get(i + 2));
+
+            machines.add(new ClawMachine(a, b, prize));
+        }
+
+        return machines;
+    }
+
+
+    /*
+     * Matches lines like:
+     *
+     * Button A: X+30, Y+84
+     * Button B: X+74, Y+60
+     * Prize: X=2358, Y=2628
+     * */
+    private static final Pattern CLAW_REGEX = Pattern.compile(".*\\D(\\d+), Y\\D(\\d+)");
+
+    private static Point parsePoint(String line) {
+        Matcher match = CLAW_REGEX.matcher(line);
+        if(!match.matches()) {
+            throw new IllegalArgumentException("Invalid line: " + line);
+        }
+        return new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
     }
 }

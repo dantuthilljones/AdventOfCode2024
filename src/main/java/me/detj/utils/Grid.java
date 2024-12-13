@@ -117,4 +117,16 @@ public class Grid<T> {
         }
         return new Grid<>(cells);
     }
+
+    public static <T> Grid<T> of(int width, int height, T value) {
+        List<List<T>> cells = new ArrayList<>(height);
+        for (int y = 0; y < height; y++) {
+            List<T> row = new ArrayList<>(width);
+            for (int x = 0; x < width; x++) {
+                row.add(value);
+            }
+            cells.add(row);
+        }
+        return new Grid<>(cells);
+    }
 }
