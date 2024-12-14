@@ -129,4 +129,13 @@ public class Grid<T> {
         }
         return new Grid<>(cells);
     }
+
+    public void print() {
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                System.out.print(get(x, y));
+            }
+            System.out.println();
+        }
+    }
 }

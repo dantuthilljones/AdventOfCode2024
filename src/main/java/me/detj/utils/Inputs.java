@@ -174,4 +174,31 @@ public class Inputs {
         }
         return new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
     }
+
+    public static List<Pair<Point>> parsePointPairs(String file) {
+        List<String> lines = readLines(file);
+
+        List<Pair<Point>> result = new ArrayList<>();
+        for (String line : lines) {
+            result.add(parsePointPair(line));
+        }
+
+        return result;
+    }
+
+    /*
+     * Matches lines like:
+     *
+     * p=9,5 v=-3,-3
+     * */
+    private static final Pattern POINT_PAIR_REGEX = Pattern.compile(".*=(-?\\d+),(-?\\d+).*=(-?\\d+),(-?\\d+)");
+    private static Pair<Point> parsePointPair(String line) {
+        Matcher match = POINT_PAIR_REGEX.matcher(line);
+        if(!match.matches()) {
+            throw new IllegalArgumentException("Invalid line: " + line);
+        }
+        Point start = new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
+        Point velocity = new Point(Integer.parseInt(match.group(3)), Integer.parseInt(match.group(4)));
+        return new Pair<>(start, velocity);
+    }
 }

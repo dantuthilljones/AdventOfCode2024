@@ -1,9 +1,12 @@
 package me.detj.utils;
 
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import javax.swing.text.Position;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -893,7 +896,7 @@ public class Utils {
         long as = Math.round(ans[0]);
         long bs = Math.round(ans[1]);
 
-        if(lMachine.getA().times(as).plus(lMachine.getB().times(bs)).equals(lMachine.getPrize())) {
+        if (lMachine.getA().times(as).plus(lMachine.getB().times(bs)).equals(lMachine.getPrize())) {
             return as * 3 + bs;
         }
 
@@ -924,8 +927,8 @@ public class Utils {
     private static double[][] getInverse(double[][] matrix) {
         double determinant = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
         return new double[][]{
-                {(1.0/determinant) * matrix[1][1], (1.0/determinant) * -matrix[0][1]},
-                {(1.0/determinant) * -matrix[1][0], (1.0/determinant) * matrix[0][0]}
+                {(1.0 / determinant) * matrix[1][1], (1.0 / determinant) * -matrix[0][1]},
+                {(1.0 / determinant) * -matrix[1][0], (1.0 / determinant) * matrix[0][0]}
         };
     }
 
@@ -934,6 +937,87 @@ public class Utils {
                 vector[0] * matrix[0][0] + vector[1] * matrix[1][0],
                 vector[0] * matrix[0][1] + vector[1] * matrix[1][1]
         };
+    }
+
+    public static int calculateSafetyFactor(List<Pair<Point>> robots, Point gridSize, int seconds) {
+        List<Point> robotPositions = robots.stream()
+                .map(robot -> calculatePosition(robot, gridSize, seconds))
+                .toList();
+
+        int[][] quadrantCounts = {
+                {0, 0},
+                {0, 0}
+        };
+
+        for (Point position : robotPositions) {
+            int midX = gridSize.getX() / 2;
+            int midY = gridSize.getY() / 2;
+
+            // don't count the robot if it's on the mid line
+            if ((position.getX() == midX && gridSize.getX() % 2 == 1)
+                    || (position.getY() == midY && gridSize.getY() % 2 == 1)) {
+                continue;
+            }
+
+            int x = (position.getX() - 1) / (gridSize.getX() / 2);
+            int y = (position.getY() - 1) / (gridSize.getY() / 2);
+
+            quadrantCounts[y][x]++;
+        }
+
+        return quadrantCounts[0][0] * quadrantCounts[0][1] * quadrantCounts[1][0] * quadrantCounts[1][1];
+    }
+
+    private static Point calculatePosition(Pair<Point> robot, Point gridSize, int seconds) {
+        Point startPosition = robot.getLeft();
+        Point velocity = robot.getRight();
+
+        Point totalMoved = velocity.times(seconds);
+        Point finalPosition = startPosition.plus(totalMoved);
+
+        finalPosition = new Point(
+                finalPosition.getX() % gridSize.getX(),
+                finalPosition.getY() % gridSize.getY()
+        );
+
+        finalPosition = new Point(
+                finalPosition.getX() < 0 ? gridSize.getX() + finalPosition.getX() : finalPosition.getX(),
+                finalPosition.getY() < 0 ? gridSize.getY() + finalPosition.getY() : finalPosition.getY()
+        );
+
+        return finalPosition;
+    }
+
+    @SneakyThrows
+    public static void printRobots(List<Pair<Point>> robots, Point gridSize, int seconds) {
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(System.in));
+        for (int i = 0; i < seconds; i++) {
+
+            Grid<Character> grid = Grid.of(gridSize.getX(), gridSize.getY(), '.');
+            int finalI = i;
+            robots.stream()
+                    .map(robot -> calculatePosition(robot, gridSize, finalI))
+                    .forEach(point -> grid.set(point, '#'));
+
+
+            System.out.printf("Grid %d:\n", i);
+            grid.print();
+            System.out.printf("Grid %d:\n", i);
+            System.out.println();
+            reader.readLine();
+        }
+    }
+
+    public static void printRobotAfter(List<Pair<Point>> robots, Point gridSize, int seconds) {
+        Grid<Character> grid = Grid.of(gridSize.getX(), gridSize.getY(), '.');
+        robots.stream()
+                .map(robot -> calculatePosition(robot, gridSize, seconds))
+                .forEach(point -> grid.set(point, '#'));
+
+        System.out.printf("Grid %d:\n", seconds);
+        grid.print();
+        System.out.printf("Grid %d:\n", seconds);
     }
 
 }
