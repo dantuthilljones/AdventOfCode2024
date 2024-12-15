@@ -7,6 +7,7 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 @AllArgsConstructor
 public class Grid<T> {
@@ -131,11 +132,27 @@ public class Grid<T> {
     }
 
     public void print() {
-        for (int x = 0; x < getWidth(); x++) {
-            for (int y = 0; y < getHeight(); y++) {
-                System.out.print(get(x, y));
+        System.out.println(this);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (int y = getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < getWidth(); x++) {
+                builder.append(get(x, y));
             }
-            System.out.println();
+            builder.append(System.lineSeparator());
+        }
+        return builder.toString();
+    }
+
+    public void forEachPoint(BiConsumer<Point, T> consumer) {
+        for (int y = getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < getWidth(); x++) {
+                Point point = new Point(x, y);
+                consumer.accept(point, get(point));
+            }
         }
     }
 }

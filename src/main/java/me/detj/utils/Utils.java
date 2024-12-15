@@ -1,5 +1,6 @@
 package me.detj.utils;
 
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
@@ -1018,6 +1019,184 @@ public class Utils {
         System.out.printf("Grid %d:\n", seconds);
         grid.print();
         System.out.printf("Grid %d:\n", seconds);
+    }
+
+    public static long calculateLanternFishBoxPositions(DTPair<Grid<Character>, List<Character>> input, boolean print) {
+        Grid<Character> warehouse = input.getLeft();
+        List<Point> boxes = warehouse.findAll('O');
+        long sum = 0;
+        for (Point box : boxes) {
+            int distanceFromTop = warehouse.getHeight() - box.getY() - 1;
+            int distanceFromLeft = box.getX();
+            sum += distanceFromTop * 100L + distanceFromLeft;
+        }
+        return sum;
+    }
+
+    private static Grid<Character> simulateLanternFishWarehouse(DTPair<Grid<Character>, List<Character>> input, boolean print) {
+        Grid<Character> warehouse = input.getLeft().shallowCopy();
+        List<Character> instructions = input.getRight();
+
+        warehouse.print();
+        Point robot = warehouse.findFirst('@');
+        warehouse.set(robot, '.');
+
+        for (Character instruction : instructions) {
+            try {
+                Function<Point, Point> direction = getDirection(instruction);
+                Point nextPoint = direction.apply(robot);
+
+                // Can't go through wall
+                if (warehouse.pointEquals(nextPoint, '#')) {
+                    continue;
+                }
+
+                if (warehouse.pointEquals(nextPoint, 'O')) {
+                    // Check if we can push all the boxes
+                    if (!pushBoxes(warehouse, nextPoint, direction)) {
+                        nextPoint = robot;
+                    }
+                }
+                robot = nextPoint;
+            } finally {
+                if (print) {
+                    System.out.println("Move " + instruction);
+                    printWarehouse(warehouse, robot);
+                }
+            }
+        }
+
+        warehouse.set(robot, '@');
+        return warehouse;
+    }
+
+    private static void printWarehouse(Grid<Character> warehouse, Point robot) {
+        warehouse = warehouse.shallowCopy();
+        warehouse.set(robot, '@');
+        warehouse.print();
+        System.out.println();
+    }
+
+    private static Function<Point, Point> getDirection(Character c) {
+        return switch (c) {
+            case '^' -> Point::moveUp;
+            case '>' -> Point::moveRight;
+            case '<' -> Point::moveLeft;
+            case 'v' -> Point::moveDown;
+            default -> throw new IllegalArgumentException("" + c);
+        };
+    }
+
+    private static boolean pushBoxes(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
+        Point box = start;
+        while (warehouse.inBounds(box)) {
+            switch (warehouse.get(box)) {
+                case '.' -> {
+                    warehouse.set(box, 'O');
+                    warehouse.set(start, '.');
+                    return true;
+                }
+                case '#' -> {
+                    return false;
+                }
+                case 'O' -> box = direction.apply(box);
+                default -> throw new IllegalArgumentException("" + warehouse.get(box));
+            }
+        }
+        return false;
+    }
+
+    public static long calculateLanternFishBoxPositionsDouble(DTPair<Grid<Character>, List<Character>> input, boolean print) {
+        Grid<Character> warehouse = makeWarehouseThicc(input.getLeft());
+        List<Point> boxes = warehouse.findAll('O');
+        long sum = 0;
+        for (Point box : boxes) {
+            int distanceFromTop = warehouse.getHeight() - box.getY() - 1;
+            int distanceFromLeft = box.getX();
+            sum += distanceFromTop * 100L + distanceFromLeft;
+        }
+        return sum;
+    }
+
+    private static Grid<Character> makeWarehouseThicc(Grid<Character> warehouse) {
+        Grid<Character> doubleWide = Grid.of(warehouse.getWidth() * 2, warehouse.getWidth(), '.');
+        warehouse.forEachPoint((Point point, Character value) -> {
+            Point p1 = new Point(point.getX() * 2, point.getY());
+            Point p2 = new Point(point.getX() * 2 +1, point.getY());
+            switch (value) {
+                case '#' -> {
+                    doubleWide.set(p1, '#');
+                    doubleWide.set(p2, '#');
+                }
+                case 'O' -> {
+                    doubleWide.set(p1, 'O');
+                    doubleWide.set(p2, 'O');
+                }
+                case '@' -> {
+                    doubleWide.set(p1, '@');
+                    doubleWide.set(p2, '.');
+                }
+            }
+        });
+        return doubleWide;
+    }
+
+    private static Grid<Character> simulateLanternFishWarehouseThicc(DTPair<Grid<Character>, List<Character>> input, boolean print) {
+        Grid<Character> warehouse = input.getLeft().shallowCopy();
+        List<Character> instructions = input.getRight();
+
+        warehouse.print();
+        Point robot = warehouse.findFirst('@');
+        warehouse.set(robot, '.');
+
+        for (Character instruction : instructions) {
+            try {
+                Function<Point, Point> direction = getDirection(instruction);
+                Point nextPoint = direction.apply(robot);
+
+                // Can't go through wall
+                if (warehouse.pointEquals(nextPoint, '#')) {
+                    continue;
+                }
+
+                if (warehouse.pointEquals(nextPoint, 'O')) {
+                    // Check if we can push all the boxes
+                    if (!pushBoxesThicc(warehouse, nextPoint, direction)) {
+                        nextPoint = robot;
+                    }
+                }
+                robot = nextPoint;
+            } finally {
+                if (print) {
+                    System.out.println("Move " + instruction);
+                    printWarehouse(warehouse, robot);
+                }
+            }
+        }
+
+        warehouse.set(robot, '@');
+        return warehouse;
+    }
+
+
+
+    private static boolean pushBoxesThicc(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
+        Point box = start;
+        while (warehouse.inBounds(box)) {
+            switch (warehouse.get(box)) {
+                case '.' -> {
+                    warehouse.set(box, 'O');
+                    warehouse.set(start, '.');
+                    return true;
+                }
+                case '#' -> {
+                    return false;
+                }
+                case 'O' -> box = direction.apply(box);
+                default -> throw new IllegalArgumentException("" + warehouse.get(box));
+            }
+        }
+        return false;
     }
 
 }

@@ -20,7 +20,7 @@ public class Solver14 {
         Utils.printRobotAfter(input, new Point(101, 103), 7520);
         //System.out.printf("Solution Part 2: %d\n", s2);
     }
-    
+
     /*
     *
     * Skinny pattern: 103

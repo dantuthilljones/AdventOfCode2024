@@ -61,7 +61,10 @@ public class Inputs {
 
     public static List<List<Character>> parseCharMatrix(String file) {
         List<String> lines = readLines(file);
+        return parseCharMatrix(lines);
+    }
 
+    private static List<List<Character>> parseCharMatrix(List<String> lines) {
         List<List<Character>> results = new ArrayList<>(lines.size());
         for (int i = lines.size() - 1; i >= 0; i--) {
             String line = lines.get(i);
@@ -169,7 +172,7 @@ public class Inputs {
 
     private static Point parsePoint(String line) {
         Matcher match = CLAW_REGEX.matcher(line);
-        if(!match.matches()) {
+        if (!match.matches()) {
             throw new IllegalArgumentException("Invalid line: " + line);
         }
         return new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
@@ -192,13 +195,40 @@ public class Inputs {
      * p=9,5 v=-3,-3
      * */
     private static final Pattern POINT_PAIR_REGEX = Pattern.compile(".*=(-?\\d+),(-?\\d+).*=(-?\\d+),(-?\\d+)");
+
     private static Pair<Point> parsePointPair(String line) {
         Matcher match = POINT_PAIR_REGEX.matcher(line);
-        if(!match.matches()) {
+        if (!match.matches()) {
             throw new IllegalArgumentException("Invalid line: " + line);
         }
         Point start = new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
         Point velocity = new Point(Integer.parseInt(match.group(3)), Integer.parseInt(match.group(4)));
         return new Pair<>(start, velocity);
+    }
+
+    public static DTPair<Grid<Character>, List<Character>> parseLanternFishWarehouse(String file) {
+        List<String> lines = readLines(file);
+
+        List<String> warehouseLines = new ArrayList<>();
+        List<Character> directions = new ArrayList<>();
+
+        boolean hitMidpoint = false;
+        for (String line : lines) {
+            if (line.isEmpty()) {
+                hitMidpoint = true;
+                continue;
+            }
+
+            if (hitMidpoint) {
+                for (char c : line.toCharArray()) {
+                    directions.add(c);
+                }
+            } else {
+                warehouseLines.add(line);
+            }
+        }
+
+        List<List<Character>> warehouse = parseCharMatrix(warehouseLines);
+        return new DTPair<>(new Grid<>(warehouse), directions);
     }
 }
