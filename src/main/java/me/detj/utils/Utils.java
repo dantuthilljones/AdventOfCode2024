@@ -1122,7 +1122,7 @@ public class Utils {
         Grid<Character> doubleWide = Grid.of(warehouse.getWidth() * 2, warehouse.getWidth(), '.');
         warehouse.forEachPoint((Point point, Character value) -> {
             Point p1 = new Point(point.getX() * 2, point.getY());
-            Point p2 = new Point(point.getX() * 2 +1, point.getY());
+            Point p2 = new Point(point.getX() * 2 + 1, point.getY());
             switch (value) {
                 case '#' -> {
                     doubleWide.set(p1, '#');
@@ -1179,8 +1179,45 @@ public class Utils {
     }
 
 
+    private static boolean pushBoxesThicc(Grid<Character> warehouse, Point start, char instruction) {
+        Function<Point, Point> direction = getDirection(instruction);
+        if (instruction == '<' || instruction == '>') {
+            return pushBoxesThiccHorizontal(warehouse, start, direction);
+        } else {
+            return pushBoxesThiccVertical(warehouse, start, direction);
+        }
+        return false;
+    }
 
-    private static boolean pushBoxesThicc(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
+    private static boolean pushBoxesThiccHorizontal(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
+        Point point = start;
+        while (warehouse.inBounds(point)) {
+            if (warehouse.pointEquals(point, '.')) {
+                shiftBoxesHorizontal(warehouse, start, point, direction);
+                return true;
+            }
+            point = direction.apply(start);
+        }
+        return false;
+    }
+
+    private static void shiftBoxesHorizontal(Grid<Character> warehouse, Point start, Point end, Function<Point, Point> direction) {
+        List<DTPair<Point, Character>> newValues = new ArrayList<>();
+        Point current = start;
+        while (!start.equals(end)) {
+            Point next = direction.apply(current);
+            newValues.add(new DTPair<>(next, warehouse.get(current)));
+            current = next;
+        }
+
+        for (DTPair<Point, Character> newValue : newValues) {
+            Point point = newValue.getLeft();
+            Character value = newValue.getRight();
+            warehouse.set(point, value);
+        }
+    }
+
+    private static boolean pushBoxesThiccVertical(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
         Point box = start;
         while (warehouse.inBounds(box)) {
             switch (warehouse.get(box)) {
@@ -1197,6 +1234,33 @@ public class Utils {
             }
         }
         return false;
+    }
+
+
+
+    private static Set<Point> canPushBoxesThiccVertical(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
+        Set<Point> boxesToBePushed = new HashSet<>();
+
+        Point box = start;
+        while (warehouse.inBounds(box)) {
+            switch (warehouse.get(box)) {
+                case '.' -> {
+                    warehouse.set(box, 'O');
+                    warehouse.set(start, '.');
+                    return true;
+                }
+                case '#' -> {
+                    return false;
+                }
+                case 'O' -> box = direction.apply(box);
+                default -> throw new IllegalArgumentException("" + warehouse.get(box));
+            }
+        }
+        return false;
+    }
+
+    private boolean calculateBoxesToPush(Grid<Character> warehouse, Point current, Function<Point, Point> direction, Set<Point> boxes) {
+        
     }
 
 }
