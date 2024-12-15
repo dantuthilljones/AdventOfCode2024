@@ -1,11 +1,9 @@
 package me.detj.utils;
 
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import javax.swing.text.Position;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -19,6 +17,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.swap;
 
@@ -1108,7 +1107,8 @@ public class Utils {
 
     public static long calculateLanternFishBoxPositionsDouble(DTPair<Grid<Character>, List<Character>> input, boolean print) {
         Grid<Character> warehouse = makeWarehouseThicc(input.getLeft());
-        List<Point> boxes = warehouse.findAll('O');
+        simulateLanternFishWarehouseThicc(warehouse, input.getRight(), print);
+        List<Point> boxes = warehouse.findAll('[');
         long sum = 0;
         for (Point box : boxes) {
             int distanceFromTop = warehouse.getHeight() - box.getY() - 1;
@@ -1129,8 +1129,8 @@ public class Utils {
                     doubleWide.set(p2, '#');
                 }
                 case 'O' -> {
-                    doubleWide.set(p1, 'O');
-                    doubleWide.set(p2, 'O');
+                    doubleWide.set(p1, '[');
+                    doubleWide.set(p2, ']');
                 }
                 case '@' -> {
                     doubleWide.set(p1, '@');
@@ -1141,11 +1141,8 @@ public class Utils {
         return doubleWide;
     }
 
-    private static Grid<Character> simulateLanternFishWarehouseThicc(DTPair<Grid<Character>, List<Character>> input, boolean print) {
-        Grid<Character> warehouse = input.getLeft().shallowCopy();
-        List<Character> instructions = input.getRight();
-
-        warehouse.print();
+    private static void simulateLanternFishWarehouseThicc(Grid<Character> warehouse, List<Character> instructions, boolean print) {
+        if(print) warehouse.print();
         Point robot = warehouse.findFirst('@');
         warehouse.set(robot, '.');
 
@@ -1159,9 +1156,9 @@ public class Utils {
                     continue;
                 }
 
-                if (warehouse.pointEquals(nextPoint, 'O')) {
+                if (warehouse.pointEquals(nextPoint, '[') || warehouse.pointEquals(nextPoint, ']')) {
                     // Check if we can push all the boxes
-                    if (!pushBoxesThicc(warehouse, nextPoint, direction)) {
+                    if (!pushBoxesThicc(warehouse, nextPoint, instruction)) {
                         nextPoint = robot;
                     }
                 }
@@ -1175,9 +1172,7 @@ public class Utils {
         }
 
         warehouse.set(robot, '@');
-        return warehouse;
     }
-
 
     private static boolean pushBoxesThicc(Grid<Character> warehouse, Point start, char instruction) {
         Function<Point, Point> direction = getDirection(instruction);
@@ -1186,7 +1181,6 @@ public class Utils {
         } else {
             return pushBoxesThiccVertical(warehouse, start, direction);
         }
-        return false;
     }
 
     private static boolean pushBoxesThiccHorizontal(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
@@ -1196,7 +1190,7 @@ public class Utils {
                 shiftBoxesHorizontal(warehouse, start, point, direction);
                 return true;
             }
-            point = direction.apply(start);
+            point = direction.apply(point);
         }
         return false;
     }
@@ -1204,7 +1198,7 @@ public class Utils {
     private static void shiftBoxesHorizontal(Grid<Character> warehouse, Point start, Point end, Function<Point, Point> direction) {
         List<DTPair<Point, Character>> newValues = new ArrayList<>();
         Point current = start;
-        while (!start.equals(end)) {
+        while (!current.equals(end)) {
             Point next = direction.apply(current);
             newValues.add(new DTPair<>(next, warehouse.get(current)));
             current = next;
@@ -1215,52 +1209,52 @@ public class Utils {
             Character value = newValue.getRight();
             warehouse.set(point, value);
         }
+        warehouse.set(start, '.');
     }
 
     private static boolean pushBoxesThiccVertical(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
-        Point box = start;
-        while (warehouse.inBounds(box)) {
-            switch (warehouse.get(box)) {
-                case '.' -> {
-                    warehouse.set(box, 'O');
-                    warehouse.set(start, '.');
-                    return true;
-                }
-                case '#' -> {
-                    return false;
-                }
-                case 'O' -> box = direction.apply(box);
-                default -> throw new IllegalArgumentException("" + warehouse.get(box));
-            }
-        }
-        return false;
-    }
-
-
-
-    private static Set<Point> canPushBoxesThiccVertical(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
         Set<Point> boxesToBePushed = new HashSet<>();
-
-        Point box = start;
-        while (warehouse.inBounds(box)) {
-            switch (warehouse.get(box)) {
-                case '.' -> {
-                    warehouse.set(box, 'O');
-                    warehouse.set(start, '.');
-                    return true;
-                }
-                case '#' -> {
-                    return false;
-                }
-                case 'O' -> box = direction.apply(box);
-                default -> throw new IllegalArgumentException("" + warehouse.get(box));
-            }
+        if (calculateBoxesToPush(warehouse, start, direction, boxesToBePushed)) {
+            shiftBoxes(warehouse, boxesToBePushed, direction);
+            return true;
         }
         return false;
     }
 
-    private boolean calculateBoxesToPush(Grid<Character> warehouse, Point current, Function<Point, Point> direction, Set<Point> boxes) {
+    private static void shiftBoxes(Grid<Character> warehouse, Set<Point> boxesToBePushed, Function<Point, Point> direction) {
+        Map<Point, Character> newValues = new HashMap<>();
+        for (Point point : boxesToBePushed) {
+            newValues.put(direction.apply(point), warehouse.get(point));
+        }
+
+        for (Point point : boxesToBePushed) {
+            if(!newValues.containsKey(point)) {
+                newValues.put(point, '.');
+            }
+        }
         
+        newValues.forEach(warehouse::set);
+    }
+
+    private static boolean calculateBoxesToPush(Grid<Character> warehouse, Point current, Function<Point, Point> direction, Set<Point> boxes) {
+        if (boxes.contains(current)) {
+            return true;
+        }
+        if (warehouse.pointEquals(current, '[')) {
+            boxes.add(current);
+            boxes.add(current.moveRight());
+
+            return calculateBoxesToPush(warehouse, direction.apply(current), direction, boxes)
+                    && calculateBoxesToPush(warehouse, direction.apply(current.moveRight()), direction, boxes);
+        } else if (warehouse.pointEquals(current, ']')) {
+            boxes.add(current);
+            boxes.add(current.moveLeft());
+
+            return calculateBoxesToPush(warehouse, direction.apply(current), direction, boxes)
+                    && calculateBoxesToPush(warehouse, direction.apply(current.moveLeft()), direction, boxes);
+        } else {
+            return warehouse.pointEquals(current, '.');
+        }
     }
 
 }

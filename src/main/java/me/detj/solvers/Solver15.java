@@ -10,7 +10,7 @@ public class Solver15 {
         long s1 = Utils.calculateLanternFishBoxPositions(input, false);
         System.out.printf("Solution Part 1: %d\n", s1);
 
-//        long s2 = Utils.fewestTokensBigger(input);
-//        System.out.printf("Solution Part 2: %d\n", s2);
+        long s2 = Utils.calculateLanternFishBoxPositionsDouble(input, true);
+        System.out.printf("Solution Part 2: %d\n", s2);
     }
 }
