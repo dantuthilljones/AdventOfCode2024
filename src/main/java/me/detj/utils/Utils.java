@@ -6,16 +6,7 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1060,7 +1051,7 @@ public class Utils {
             } finally {
                 if (print) {
                     System.out.println("Move " + instruction);
-                    printWarehouse(warehouse, robot);
+                    printWarehouse(warehouse, robot, null);
                 }
             }
         }
@@ -1069,8 +1060,11 @@ public class Utils {
         return warehouse;
     }
 
-    private static void printWarehouse(Grid<Character> warehouse, Point robot) {
+    private static void printWarehouse(Grid<Character> warehouse, Point robot, Point prev) {
         warehouse = warehouse.shallowCopy();
+        if(prev != null) {
+            warehouse.set(prev, 'a');
+        }
         warehouse.set(robot, '@');
         warehouse.print();
         System.out.println();
@@ -1119,7 +1113,7 @@ public class Utils {
     }
 
     private static Grid<Character> makeWarehouseThicc(Grid<Character> warehouse) {
-        Grid<Character> doubleWide = Grid.of(warehouse.getWidth() * 2, warehouse.getWidth(), '.');
+        Grid<Character> doubleWide = Grid.of(warehouse.getWidth() * 2, warehouse.getHeight(), '.');
         warehouse.forEachPoint((Point point, Character value) -> {
             Point p1 = new Point(point.getX() * 2, point.getY());
             Point p2 = new Point(point.getX() * 2 + 1, point.getY());
@@ -1144,7 +1138,12 @@ public class Utils {
     private static void simulateLanternFishWarehouseThicc(Grid<Character> warehouse, List<Character> instructions, boolean print) {
         if(print) warehouse.print();
         Point robot = warehouse.findFirst('@');
+        Point prev = robot;
         warehouse.set(robot, '.');
+
+        int numBoxLeft = warehouse.findAll('[').size();
+        int numBoxRight = warehouse.findAll(']').size();
+        int numWalls = warehouse.findAll('#').size();
 
         for (Character instruction : instructions) {
             try {
@@ -1162,11 +1161,23 @@ public class Utils {
                         nextPoint = robot;
                     }
                 }
+                prev = robot;
                 robot = nextPoint;
             } finally {
                 if (print) {
                     System.out.println("Move " + instruction);
-                    printWarehouse(warehouse, robot);
+                    printWarehouse(warehouse, robot, prev);
+                }
+
+
+                if(warehouse.findAll('[').size() != numBoxLeft) {
+                    throw new IllegalArgumentException("[");
+                }
+                if(warehouse.findAll(']').size() != numBoxRight) {
+                    throw new IllegalArgumentException("]");
+                }
+                if(warehouse.findAll('#').size() != numWalls) {
+                    throw new IllegalArgumentException("#");
                 }
             }
         }
@@ -1185,10 +1196,15 @@ public class Utils {
 
     private static boolean pushBoxesThiccHorizontal(Grid<Character> warehouse, Point start, Function<Point, Point> direction) {
         Point point = start;
+        Set<Point> pointsToMove = new HashSet<>();
         while (warehouse.inBounds(point)) {
             if (warehouse.pointEquals(point, '.')) {
-                shiftBoxesHorizontal(warehouse, start, point, direction);
+                shiftBoxes(warehouse, pointsToMove, direction);
                 return true;
+            } else if(warehouse.pointEquals(point, '[') || warehouse.pointEquals(point, ']')) {
+                pointsToMove.add(point);
+            } else {
+                return false;
             }
             point = direction.apply(point);
         }
