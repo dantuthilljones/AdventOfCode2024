@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 @AllArgsConstructor
 public class Grid<T> {
@@ -125,6 +126,18 @@ public class Grid<T> {
             List<T> row = new ArrayList<>(width);
             for (int x = 0; x < width; x++) {
                 row.add(value);
+            }
+            cells.add(row);
+        }
+        return new Grid<>(cells);
+    }
+
+    public static <T> Grid<T> ofSupplier(int width, int height, Supplier<T> value) {
+        List<List<T>> cells = new ArrayList<>(height);
+        for (int y = 0; y < height; y++) {
+            List<T> row = new ArrayList<>(width);
+            for (int x = 0; x < width; x++) {
+                row.add(value.get());
             }
             cells.add(row);
         }

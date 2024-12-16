@@ -1062,7 +1062,7 @@ public class Utils {
 
     private static void printWarehouse(Grid<Character> warehouse, Point robot, Point prev) {
         warehouse = warehouse.shallowCopy();
-        if(prev != null) {
+        if (prev != null) {
             warehouse.set(prev, 'a');
         }
         warehouse.set(robot, '@');
@@ -1136,7 +1136,7 @@ public class Utils {
     }
 
     private static void simulateLanternFishWarehouseThicc(Grid<Character> warehouse, List<Character> instructions, boolean print) {
-        if(print) warehouse.print();
+        if (print) warehouse.print();
         Point robot = warehouse.findFirst('@');
         Point prev = robot;
         warehouse.set(robot, '.');
@@ -1170,13 +1170,13 @@ public class Utils {
                 }
 
 
-                if(warehouse.findAll('[').size() != numBoxLeft) {
+                if (warehouse.findAll('[').size() != numBoxLeft) {
                     throw new IllegalArgumentException("[");
                 }
-                if(warehouse.findAll(']').size() != numBoxRight) {
+                if (warehouse.findAll(']').size() != numBoxRight) {
                     throw new IllegalArgumentException("]");
                 }
-                if(warehouse.findAll('#').size() != numWalls) {
+                if (warehouse.findAll('#').size() != numWalls) {
                     throw new IllegalArgumentException("#");
                 }
             }
@@ -1201,7 +1201,7 @@ public class Utils {
             if (warehouse.pointEquals(point, '.')) {
                 shiftBoxes(warehouse, pointsToMove, direction);
                 return true;
-            } else if(warehouse.pointEquals(point, '[') || warehouse.pointEquals(point, ']')) {
+            } else if (warehouse.pointEquals(point, '[') || warehouse.pointEquals(point, ']')) {
                 pointsToMove.add(point);
             } else {
                 return false;
@@ -1244,11 +1244,11 @@ public class Utils {
         }
 
         for (Point point : boxesToBePushed) {
-            if(!newValues.containsKey(point)) {
+            if (!newValues.containsKey(point)) {
                 newValues.put(point, '.');
             }
         }
-        
+
         newValues.forEach(warehouse::set);
     }
 
@@ -1273,4 +1273,116 @@ public class Utils {
         }
     }
 
+    private static void drawMaze(Grid<Character> maze, Grid<Integer[]> distances) {
+        Grid<Character> toDraw = maze.shallowCopy();
+
+        distances.forEachPoint((point, distance) -> {
+            int minIndex = -1;
+            int minDistance = Integer.MAX_VALUE;
+            for (int i = 0; i < distance.length; i++) {
+                if (distance[i] < minDistance) {
+                    minDistance = distance[i];
+                    minIndex = i;
+                }
+            }
+            if (minIndex != -1) {
+                char c = switch (minIndex) {
+                    case 0 -> '^';
+                    case 1 -> '>';
+                    case 2 -> 'v';
+                    case 3 -> '<';
+                    default -> throw new IllegalArgumentException();
+                };
+                toDraw.set(point, c);
+            }
+        });
+
+        toDraw.print();
+    }
+
+    private static void step(Grid<Character> maze, Grid<List<List<MazePostion>>> scores, PriorityQueue<MazePostion> queue, MazePostion position) {
+        // Can't step through walls
+        if (maze.pointEquals(position.getPoint(), '#')) {
+            return;
+        }
+
+        // If we've found this position for cheaper, skip
+        List<MazePostion> bestPaths = scores.get(position.getPoint()).get(position.getDirection());
+        if (!bestPaths.isEmpty() && bestPaths.get(0).getScore() < position.getScore()) {
+            return;
+        }
+
+        // We've found a new best path
+        // Clear the list if the new path is better, otherwise we just add this new path
+        if(!bestPaths.isEmpty() && bestPaths.get(0).getScore() > position.getScore()) {
+            bestPaths.clear();
+        }
+        bestPaths.add(position);
+
+        // step forwards
+        Point forwards = Point.BASIC_DIRECTIONS.get(position.getDirection()).apply(position.getPoint());
+        List<MazePostion> path = new ArrayList<>(position.getPath());
+        path.add(position);
+        MazePostion forwardPosition = new MazePostion(forwards, position.getDirection(), position.getScore() + 1, path);
+        queue.add(forwardPosition);
+
+        // rotate right
+        int right = (position.getDirection() + 1) % 4;
+        List<MazePostion> rightPath = new ArrayList<>(position.getPath());
+        rightPath.add(position);
+        queue.add(new MazePostion(position.getPoint(), right, position.getScore() + 1000, rightPath));
+
+        // rotate left
+        int left = (position.getDirection() + 3) % 4;
+        List<MazePostion> leftPath = new ArrayList<>(position.getPath());
+        leftPath.add(position);
+        queue.add(new MazePostion(position.getPoint(), left, position.getScore() + 1000, leftPath));
+    }
+
+    public static MazeResult calculateReindeerMaze(Grid<Character> maze) {
+        Point start = maze.findFirst('S');
+        Point end = maze.findFirst('E');
+
+        // Initialize objects which keep track of score and path. The values are an array of positions where index = direction (0 = up, 1 = right, 2 = down, 3 = left)
+        Grid<List<List<MazePostion>>> distances = Grid.ofSupplier(maze.getWidth(), maze.getHeight(), () -> List.of(
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()
+        ));
+
+        PriorityQueue<MazePostion> queue = new PriorityQueue<>(Comparator.comparing(MazePostion::getScore));
+        queue.add(new MazePostion(start, 1, 0, List.of()));
+
+        while (!queue.isEmpty()) {
+            MazePostion position = queue.poll();
+            step(maze, distances, queue, position);
+            //drawMaze(maze, distances);
+        }
+
+        int min = distances.get(end).stream()
+                .flatMap(List::stream)
+                .mapToInt(distance -> distance.getScore())
+                .min()
+                .getAsInt();
+
+        List<List<MazePostion>> paths = distances.get(end).stream()
+                .flatMap(List::stream)
+                .filter(distance -> distance.getScore() == min)
+                .map(MazePostion::getPath)
+                .toList();
+
+        Set<Point> points = paths.stream()
+                .flatMap(List::stream)
+                .map(MazePostion::getPoint)
+                .collect(Collectors.toSet());
+        points.add(end);
+
+        drawPointsOnMaze(maze, points);
+
+        return new MazeResult(paths, points, min);
+    }
+
+    private static void drawPointsOnMaze(Grid<Character> maze, Set<Point> points) {
+        Grid<Character> toDraw = maze.shallowCopy();
+        points.forEach(point -> toDraw.set(point, 'O'));
+        toDraw.print();
+    }
 }
