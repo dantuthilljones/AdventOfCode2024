@@ -231,4 +231,37 @@ public class Inputs {
         List<List<Character>> warehouse = parseCharMatrix(warehouseLines);
         return new DTPair<>(new Grid<>(warehouse), directions);
     }
+
+    /*
+    * Matches the second part of the line e.g.
+    *
+    * 'Register A: 28422061' -> '28422061'
+    * 'Register B: 0' -> '0'
+    * 'Register C: 0' -> '0'
+    * 'Program: 2,4,1,1,7,5,1,5,4,2,5,5,0,3,3,0' -> '2,4,1,1,7,5,1,5,4,2,5,5,0,3,3,0'
+    *
+    * */
+    private static final Pattern COMPUTER_INPUT = Pattern.compile(".*: (.*)");
+
+    private static String getComputerInput(String line) {
+        Matcher match = COMPUTER_INPUT.matcher(line);
+        if (!match.matches()) {
+            throw new IllegalArgumentException("Invalid line: " + line);
+        }
+        return match.group(1);
+    }
+
+    public static OpcodeComputer parseComputer(String file) {
+        List<String> lines = readLines(file);
+
+        int a = Integer.parseInt(getComputerInput(lines.get(0)));
+        int b = Integer.parseInt(getComputerInput(lines.get(1)));
+        int c = Integer.parseInt(getComputerInput(lines.get(2)));
+
+        List<Integer> program = Arrays.stream(getComputerInput(lines.get(4)).split(","))
+                .map(Integer::parseInt)
+                .toList();
+
+        return OpcodeComputer.of(a, b, c, program);
+    }
 }
