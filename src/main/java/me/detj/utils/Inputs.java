@@ -233,14 +233,14 @@ public class Inputs {
     }
 
     /*
-    * Matches the second part of the line e.g.
-    *
-    * 'Register A: 28422061' -> '28422061'
-    * 'Register B: 0' -> '0'
-    * 'Register C: 0' -> '0'
-    * 'Program: 2,4,1,1,7,5,1,5,4,2,5,5,0,3,3,0' -> '2,4,1,1,7,5,1,5,4,2,5,5,0,3,3,0'
-    *
-    * */
+     * Matches the second part of the line e.g.
+     *
+     * 'Register A: 28422061' -> '28422061'
+     * 'Register B: 0' -> '0'
+     * 'Register C: 0' -> '0'
+     * 'Program: 2,4,1,1,7,5,1,5,4,2,5,5,0,3,3,0' -> '2,4,1,1,7,5,1,5,4,2,5,5,0,3,3,0'
+     *
+     * */
     private static final Pattern COMPUTER_INPUT = Pattern.compile(".*: (.*)");
 
     private static String getComputerInput(String line) {
@@ -273,5 +273,16 @@ public class Inputs {
                     return new Point(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
                 })
                 .toList();
+    }
+
+    public static TowelProblem parseTowelProblem(String file) {
+        List<String> lines = readLines(file);
+        List<String> towels = Arrays.stream(lines.get(0).split(", ")).toList();
+
+        List<String> patterns = new ArrayList<>();
+        for (int i = 2; i < lines.size(); i++) {
+            patterns.add(lines.get(i));
+        }
+        return new TowelProblem(towels, patterns);
     }
 }
