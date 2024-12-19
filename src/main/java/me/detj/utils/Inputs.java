@@ -264,4 +264,14 @@ public class Inputs {
 
         return OpcodeComputer.of(a, b, c, program);
     }
+
+    public static List<Point> parseListOfPoints(String file) {
+        return readLines(file)
+                .stream()
+                .map(line -> {
+                    String[] split = line.split(",");
+                    return new Point(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+                })
+                .toList();
+    }
 }

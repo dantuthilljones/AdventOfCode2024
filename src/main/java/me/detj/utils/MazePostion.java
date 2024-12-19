@@ -1,13 +1,14 @@
 package me.detj.utils;
 
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
 
 @Value
 public class MazePostion {
-    Point point;
+    @NonNull Point point;
     int direction;
     int score;
-    List<MazePostion> path;
+    @NonNull List<MazePostion> path;
 }

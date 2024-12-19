@@ -13,7 +13,5 @@ public class Solver17 {
 
         long s2 = Utils.findComputerInput(computer.getInstructions());
         System.out.printf("Solution Part 2: %d\n", s2);
-
-
     }
 }

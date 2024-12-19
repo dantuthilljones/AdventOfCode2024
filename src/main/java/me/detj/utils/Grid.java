@@ -1,6 +1,7 @@
 package me.detj.utils;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -26,7 +27,7 @@ public class Grid<T> {
         return cells.get(y).get(x);
     }
 
-    public void set(Point point, T value) {
+    public void set(Point point, @NonNull T value) {
         set(point.getX(), point.getY(), value);
     }
 
