@@ -113,4 +113,8 @@ public class Point {
     public Point times(int a) {
         return of(x * a, y * a);
     }
+
+    public int manhattanDistance(Point other) {
+        return Math.abs(x - other.getX()) + Math.abs(y - other.getY());
+    }
 }
