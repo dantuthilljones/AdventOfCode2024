@@ -165,59 +165,6 @@ public class Solver21 {
         return result;
     }
 
-    private static void flattenIncreasesRecursive(Map<ButtonState, List<Map<ButtonState, Long>>> allIncreases,
-                                                  Map<ButtonState, Map<ButtonState, Long>> current,
-                                                  List<Map<ButtonState, Map<ButtonState, Long>>> result) {
-        if (current.size() == allIncreases.size()) {
-            result.add(new HashMap<>(current));
-            return;
-        }
-
-        for (Map.Entry<ButtonState, List<Map<ButtonState, Long>>> entry : allIncreases.entrySet()) {
-            if (!current.containsKey(entry.getKey())) {
-                for (Map<ButtonState, Long> map : entry.getValue()) {
-                    current.put(entry.getKey(), map);
-                    flattenIncreasesRecursive(allIncreases, current, result);
-                    current.remove(entry.getKey());
-                }
-            }
-        }
-    }
-
-    private static long shortestSequenceRecursive(String finalSeq, int keypads) {
-        Map<ButtonState, Long> frequences = calcFrequencies(finalSeq);
-        Map<ButtonState, List<Map<ButtonState, Long>>> increases = computeIncreasesEachIteration();
-
-        List<Map<ButtonState, Long>> allFrequencies = calcRecursively(frequences, increases, keypads);
-
-        //todo get one with shortest frequencies
-
-        AtomicLong sum = new AtomicLong(0);
-
-        frequences.values().forEach(sum::addAndGet);
-
-        return sum.get();
-    }
-
-    private static List<Map<ButtonState, Long>> calcRecursively(
-            Map<ButtonState, Long> frequences,
-            Map<ButtonState, List<Map<ButtonState, Long>>> increases,
-            int remainingKeypads) {
-
-        List<Map<ButtonState, Long>> buttons = new ArrayList<>();
-
-        Map<ButtonState, Long> newFrequencies = new HashMap<>();
-        frequences.forEach((buttonState, freq) -> {
-            increases.get(buttonState).get(0).forEach((higherState, num) -> {
-                long newFreq = freq * num;
-                newFrequencies.put(higherState, newFrequencies.getOrDefault(higherState, 0L) + newFreq);
-            });
-        });
-
-        // to do return buttons
-        return null;
-    }
-
     private static Map<ButtonState, List<Map<ButtonState,Long>>> computeIncreasesEachIteration() {
         ButtonRobot robot = ButtonRobot.directionalRobot();
 
