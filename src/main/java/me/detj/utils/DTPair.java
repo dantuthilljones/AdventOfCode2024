@@ -5,6 +5,8 @@ import lombok.Value;
 
 @Value
 public class DTPair<L, R> {
-    @NonNull L left;
-    @NonNull R right;
+    @NonNull
+    L left;
+    @NonNull
+    R right;
 }

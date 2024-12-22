@@ -1,4 +1,4 @@
-package me.detj.solvers;
+package me.detj.aoc_2024;
 
 import me.detj.utils.Inputs;
 
@@ -41,7 +41,7 @@ public class Solver03 {
                 case "do()" -> on = true;
                 case "don't()" -> on = false;
                 default -> {// only remaining match is mul
-                    if(!on) continue;
+                    if (!on) continue;
                     int first = Integer.parseInt(matcher.group(1));
                     int second = Integer.parseInt(matcher.group(2));
                     total += (first * second);

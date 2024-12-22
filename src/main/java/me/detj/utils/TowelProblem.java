@@ -7,6 +7,8 @@ import java.util.List;
 
 @Value
 public class TowelProblem {
-    @NonNull List<String> towels;
-    @NonNull List<String> patterns;
+    @NonNull
+    List<String> towels;
+    @NonNull
+    List<String> patterns;
 }

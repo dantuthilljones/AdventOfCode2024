@@ -19,12 +19,12 @@ public class Trie {
         List<String> prefixingWords = new ArrayList<>();
 
         TrieNode current = root;
-        for(char c : prefix.toCharArray()) {
+        for (char c : prefix.toCharArray()) {
             current = current.getChildren().get(c);
             if (current == null) {
                 return prefixingWords;
             }
-            if(current.isEndOfWord) {
+            if (current.isEndOfWord) {
                 prefixingWords.add(current.word);
             }
         }
@@ -41,12 +41,12 @@ public class Trie {
     }
 
     public static Trie build(List<String> strings) {
-        TrieNode root = new TrieNode(new HashMap<>(), null,false);
+        TrieNode root = new TrieNode(new HashMap<>(), null, false);
 
         for (String string : strings) {
             TrieNode current = root;
             for (char c : string.toCharArray()) {
-                current = current.getChildren().computeIfAbsent(c, k -> new TrieNode(new HashMap<>(), null,false));
+                current = current.getChildren().computeIfAbsent(c, k -> new TrieNode(new HashMap<>(), null, false));
             }
             current.setWord(string);
             current.setEndOfWord(true);

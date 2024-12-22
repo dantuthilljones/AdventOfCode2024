@@ -1,4 +1,4 @@
-package me.detj.solvers;
+package me.detj.aoc_2024;
 
 import me.detj.utils.Inputs;
 import me.detj.utils.Utils;

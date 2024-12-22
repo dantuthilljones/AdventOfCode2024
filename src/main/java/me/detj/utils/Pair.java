@@ -5,6 +5,8 @@ import lombok.Value;
 
 @Value
 public class Pair<T> {
-    @NonNull T left;
-    @NonNull T right;
+    @NonNull
+    T left;
+    @NonNull
+    T right;
 }

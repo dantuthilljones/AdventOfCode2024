@@ -7,8 +7,10 @@ import java.util.List;
 
 @Value
 public class MazePostion {
-    @NonNull Point point;
+    @NonNull
+    Point point;
     int direction;
     int score;
-    @NonNull List<MazePostion> path;
+    @NonNull
+    List<MazePostion> path;
 }

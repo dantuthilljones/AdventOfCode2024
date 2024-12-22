@@ -285,4 +285,11 @@ public class Inputs {
         }
         return new TowelProblem(towels, patterns);
     }
+
+    public static List<Long> parseListOfNumbers(String file) {
+        return readLines(file)
+                .stream()
+                .map(Long::parseLong)
+                .toList();
+    }
 }
