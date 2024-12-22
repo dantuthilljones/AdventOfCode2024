@@ -37,7 +37,7 @@ public class ButtonRobot {
         return sequences;
     }
 
-    private Set<String> goToButton(Character button) {
+    public Set<String> goToButton(Character button) {
         Point buttonPosition = buttons.get(button);
         Set<String> sequencesToButton = new HashSet<>();
         xFirstPath(position, buttonPosition, emptyButton).ifPresent(seq -> sequencesToButton.add(seq + "A"));
