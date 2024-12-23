@@ -10,7 +10,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -291,5 +295,22 @@ public class Inputs {
                 .stream()
                 .map(Long::parseLong)
                 .toList();
+    }
+
+    public static Map<String, Set<String>> parseConnectedComputers(String file) {
+        List<String> strings = readLines(file);
+        Map<String, Set<String>> connections = new HashMap<>();
+        for(String line : strings) {
+            String[] split = line.split("-");
+            String c1 = split[0];
+            String c2 = split[1];
+
+            connections.computeIfAbsent(c1, k -> new HashSet<>())
+                    .add(c2);
+            connections.computeIfAbsent(c2, k -> new HashSet<>())
+                    .add(c1);
+        }
+
+        return connections;
     }
 }
