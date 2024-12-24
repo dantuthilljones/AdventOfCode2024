@@ -313,4 +313,33 @@ public class Inputs {
 
         return connections;
     }
+
+    public static WireProblem parseWireProblem(String file ) {
+        boolean readingWires = true;
+        List<String> lines = readLines(file);
+
+        Map<String, Boolean> initialWires = new HashMap<>();
+        List<WireProblem.Gate> gates = new ArrayList<>();
+
+        for(String line : lines) {
+            if(line.isEmpty()) {
+                readingWires = false;
+                continue;
+            }
+
+            if(readingWires) {
+                String[] split = line.split(":");
+                initialWires.put(split[0], split[1].trim().equals("1"));
+            } else {
+                String[] split = line.split(" ");
+                String left = split[0];
+                String gate = split[1];
+                String right = split[2];
+                // skip the arrow
+                String out = split[4];
+                gates.add(new WireProblem.Gate(left, gate, right, out));
+            }
+        }
+        return new WireProblem(initialWires, gates);
+    }
 }
