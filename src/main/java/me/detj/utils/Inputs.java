@@ -300,7 +300,7 @@ public class Inputs {
     public static Map<String, Set<String>> parseConnectedComputers(String file) {
         List<String> strings = readLines(file);
         Map<String, Set<String>> connections = new HashMap<>();
-        for(String line : strings) {
+        for (String line : strings) {
             String[] split = line.split("-");
             String c1 = split[0];
             String c2 = split[1];
@@ -314,20 +314,20 @@ public class Inputs {
         return connections;
     }
 
-    public static WireProblem parseWireProblem(String file ) {
+    public static WireProblem parseWireProblem(String file) {
         boolean readingWires = true;
         List<String> lines = readLines(file);
 
         Map<String, Boolean> initialWires = new HashMap<>();
         List<WireProblem.Gate> gates = new ArrayList<>();
 
-        for(String line : lines) {
-            if(line.isEmpty()) {
+        for (String line : lines) {
+            if (line.isEmpty()) {
                 readingWires = false;
                 continue;
             }
 
-            if(readingWires) {
+            if (readingWires) {
                 String[] split = line.split(":");
                 initialWires.put(split[0], split[1].trim().equals("1"));
             } else {
@@ -341,5 +341,63 @@ public class Inputs {
             }
         }
         return new WireProblem(initialWires, gates);
+    }
+
+    public static LockProblem parseKeysAndLocks(String file) {
+        List<String> lines = readLines(file);
+
+        List<List<Integer>> locks = new ArrayList<>();
+        List<List<Integer>> keys = new ArrayList<>();
+
+        for (int i = 0; i < lines.size(); i += 8) {
+            // if first line is all # we have a lock
+            if (lines.get(i).chars().allMatch(c -> c == '#')) {
+                locks.add(parseLock(lines.subList(i, i + 7)));
+            } else {
+                keys.add(parseKey(lines.subList(i, i + 7)));
+            }
+        }
+
+        return new LockProblem(keys, locks);
+    }
+
+    private static List<Integer> parseLock(List<String> strings) {
+        List<Integer> lock = new ArrayList<>(5);
+
+        // initialise to 0
+        for (int i = 0; i < 5; i++) {
+            lock.add(0);
+        }
+
+        for (int i = 1; i <= 6; i++) {
+            String line = strings.get(i);
+            for (int j = 0; j < 5; j++) {
+                char c = line.charAt(j);
+                if (c == '#') {
+                    lock.set(j, lock.get(j) + 1);
+                }
+            }
+        }
+        return lock;
+    }
+
+    private static List<Integer> parseKey(List<String> strings) {
+        List<Integer> lock = new ArrayList<>(5);
+
+        // initialise to 0
+        for (int i = 0; i < 5; i++) {
+            lock.add(0);
+        }
+
+        for (int i = 0; i < 6; i++) {
+            String line = strings.get(i);
+            for (int j = 0; j < 5; j++) {
+                char c = line.charAt(j);
+                if (c == '#') {
+                    lock.set(j, lock.get(j) + 1);
+                }
+            }
+        }
+        return lock;
     }
 }
