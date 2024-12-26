@@ -332,12 +332,7 @@ public class Inputs {
                 initialWires.put(split[0], split[1].trim().equals("1"));
             } else {
                 String[] split = line.split(" ");
-                String left = split[0];
-                String gate = split[1];
-                String right = split[2];
-                // skip the arrow
-                String out = split[4];
-                gates.add(new WireProblem.Gate(left, gate, right, out));
+                gates.add(WireProblem.gateFromString(line));
             }
         }
         return new WireProblem(initialWires, gates);
