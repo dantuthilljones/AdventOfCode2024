@@ -19,7 +19,7 @@ import static me.detj.utils.WireCalculator.buildInitialValues;
 
 public class Solver24 {
     public static void main(String[] args) {
-        var input = Inputs.parseWireProblem("input_24.txt");
+        var input = Inputs.parseWireProblem("2024/input_24.txt");
 
         long s1 = getZNumber(input);
         System.out.printf("Solution Part 1: %d\n", s1);

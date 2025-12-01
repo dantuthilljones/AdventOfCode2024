@@ -8,7 +8,7 @@ import java.util.List;
 public class Solver25 {
 
     public static void main(String[] args) {
-        var input = Inputs.parseKeysAndLocks("input_25.txt");
+        var input = Inputs.parseKeysAndLocks("2024/input_25.txt");
 
         long s1 = countValidPairs(input);
         System.out.printf("Solution Part 1: %d\n", s1);

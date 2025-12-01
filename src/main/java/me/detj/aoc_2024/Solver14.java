@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class Solver14 {
     public static void main(String[] args) {
-        var input = Inputs.parsePointPairs("input_14.txt");
+        var input = Inputs.parsePointPairs("2024/input_14.txt");
 
         long s1 = calculateSafetyFactor(input, new Point(101, 103), 100);
         System.out.printf("Solution Part 1: %d\n", s1);

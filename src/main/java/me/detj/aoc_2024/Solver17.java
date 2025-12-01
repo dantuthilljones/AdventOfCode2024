@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class Solver17 {
     public static void main(String[] args) {
-        var computer = Inputs.parseComputer("input_17.txt");
+        var computer = Inputs.parseComputer("2024/input_17.txt");
         computer.runProgram();
 
         String formattedOutput = computer.getFormattedOutput();

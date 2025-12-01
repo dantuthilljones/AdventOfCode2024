@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Solver13 {
     public static void main(String[] args) {
-        var input = Inputs.parseClawMachines("input_13.txt");
+        var input = Inputs.parseClawMachines("2024/input_13.txt");
 
         long s1 = fewestTokens(input);
         System.out.printf("Solution Part 1: %d\n", s1);

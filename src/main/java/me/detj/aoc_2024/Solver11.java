@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class Solver11 {
     public static void main(String[] args) {
-        var stones = Inputs.parseIntList("input_11.txt");
+        var stones = Inputs.parseIntList("2024/input_11.txt");
 
         long numStones = countStonesAfterBlinking(stones, 25);
         System.out.printf("Solution Part 1: %d\n", numStones);

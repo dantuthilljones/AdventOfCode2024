@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Solver21 {
     public static void main(String[] args) {
-        var input = Inputs.readLines("input_21.txt");
+        var input = Inputs.readLines("2024/input_21.txt");
 
         long s1 = calculateComplexities(input);
         System.out.printf("Solution Part 1: %d\n", s1);

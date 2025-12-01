@@ -8,7 +8,7 @@ import java.util.List;
 public class Solver02 {
 
     public static void main(String[] args) {
-        var reports = Inputs.parseListOfList("input_02.txt");
+        var reports = Inputs.parseListOfList("2024/input_02.txt");
         int safeReports = countSafeReports(reports, false);
         System.out.printf("Safe Reports: %d\n", safeReports);
 

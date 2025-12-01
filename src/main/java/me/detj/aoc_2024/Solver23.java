@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public class Solver23 {
     public static void main(String[] args) {
-        var input = Inputs.parseConnectedComputers("input_23.txt");
+        var input = Inputs.parseConnectedComputers("2024/input_23.txt");
 
         long s1 = calculateNumberPossiblyContainingChief(input);
         System.out.printf("Solution Part 1: %d\n", s1);

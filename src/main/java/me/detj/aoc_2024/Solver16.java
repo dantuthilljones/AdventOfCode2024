@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class Solver16 {
     public static void main(String[] args) {
-        var input = Inputs.parseCharGrid("input_16.txt");
+        var input = Inputs.parseCharGrid("2024/input_16.txt");
 
         MazeResult result = calculateReindeerMaze(input);
         System.out.printf("Solution Part 1: %d\n", result.getCost());

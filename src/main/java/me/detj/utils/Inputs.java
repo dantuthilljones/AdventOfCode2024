@@ -395,4 +395,17 @@ public class Inputs {
         }
         return lock;
     }
+
+    public static List<DTPair<Character, Integer>> parseDialRotations(String file) {
+        List<String> lines = readLines(file);
+
+        List<DTPair<Character, Integer>> result = new ArrayList<>();
+        for (String line : lines) {
+            char c = line.charAt(0);
+            int rotation = Integer.parseInt(line.substring(1).trim());
+            result.add(new DTPair<>(c, rotation));
+        }
+
+        return result;
+    }
 }

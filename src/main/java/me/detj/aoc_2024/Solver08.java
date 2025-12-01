@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Solver08 {
     public static void main(String[] args) {
-        var map = Inputs.parseCharGrid("input_08.txt");
+        var map = Inputs.parseCharGrid("2024/input_08.txt");
 
         int antiNodes = countAntiNodes(map.shallowCopy());
         System.out.printf("Solution Part 1: %d\n", antiNodes);

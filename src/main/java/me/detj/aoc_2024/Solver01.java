@@ -12,7 +12,7 @@ import java.util.Map;
 public class Solver01 {
 
     public static void main(String[] args) throws IOException {
-        var input = Inputs.parseListOfPairs("input_01.txt");
+        var input = Inputs.parseListOfPairs("2024/input_01.txt");
         System.out.printf("Total Distance: %d\n", calculateDistance(input.getLeft(), input.getRight()));
         System.out.printf("Total Similarity: %d\n", calculateSimilarity(input.getLeft(), input.getRight()));
     }
