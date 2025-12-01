@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 public class Solver06 {
     public static void main(String[] args) {
-        var map = Inputs.parseCharGrid("input_06.txt");
+        var map = Inputs.parseCharGrid("2024/input_06.txt");
 
         int guardPositions = countGuardPositions(map.shallowCopy());
         System.out.printf("Solution Part 1: %d\n", guardPositions);

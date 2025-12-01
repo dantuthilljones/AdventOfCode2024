@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public class Solver04 {
     public static void main(String[] args) {
-        var wordSearch = Inputs.parseCharMatrix("input_04.txt");
+        var wordSearch = Inputs.parseCharMatrix("2024/input_04.txt");
         int xMasses = searchForWord(wordSearch, List.of('X', 'M', 'A', 'S'));
         System.out.printf("XMAS Occurrences: %d\n", xMasses);
 

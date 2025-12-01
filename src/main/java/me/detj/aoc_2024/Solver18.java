@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 public class Solver18 {
     public static void main(String[] args) {
-        var input = Inputs.parseListOfPoints("input_18.txt");
+        var input = Inputs.parseListOfPoints("2024/input_18.txt");
 
         int s1 = lengthOfShortestPathInComputer(input, 1024);
         System.out.printf("Solution Part 1: %d\n", s1);

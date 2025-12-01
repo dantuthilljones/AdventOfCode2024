@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public class Solver10 {
     public static void main(String[] args) {
-        var map = Inputs.parseDenseIntGrid("input_10.txt");
+        var map = Inputs.parseDenseIntGrid("2024/input_10.txt");
 
         long score = scoreTrails(map);
         System.out.printf("Solution Part 1: %d\n", score);

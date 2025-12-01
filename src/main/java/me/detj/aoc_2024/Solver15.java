@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class Solver15 {
     public static void main(String[] args) {
-        var input = Inputs.parseLanternFishWarehouse("input_15.txt");
+        var input = Inputs.parseLanternFishWarehouse("2024/input_15.txt");
 
         long s1 = calculateLanternFishBoxPositions(input, false);
         System.out.printf("Solution Part 1: %d\n", s1);

@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Solver22 {
     public static void main(String[] args) {
-        var input = Inputs.parseListOfNumbers("input_22.txt");
+        var input = Inputs.parseListOfNumbers("2024/input_22.txt");
 
         long s1 = calculateSecretNumberSum(input);
         System.out.printf("Solution Part 1: %d\n", s1);

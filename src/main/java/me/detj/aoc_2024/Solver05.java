@@ -13,7 +13,7 @@ import static java.util.Collections.swap;
 
 public class Solver05 {
     public static void main(String[] args) {
-        var rulesAndPages = Inputs.parsePageRules("input_05.txt");
+        var rulesAndPages = Inputs.parsePageRules("2024/input_05.txt");
 
         int sum = countMiddleNumbersOfValidUpdates(rulesAndPages.getRight(), rulesAndPages.getLeft());
         System.out.printf("Solution Part 1: %d\n", sum);

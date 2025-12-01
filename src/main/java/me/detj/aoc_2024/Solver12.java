@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 public class Solver12 {
     public static void main(String[] args) {
-        var garden = Inputs.parseCharGrid("input_12.txt");
+        var garden = Inputs.parseCharGrid("2024/input_12.txt");
 
         long price = priceFence(garden);
         System.out.printf("Solution Part 1: %d\n", price);

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Solver07 {
     public static void main(String[] args) {
-        var input = Inputs.parseLabelledList("input_07.txt");
+        var input = Inputs.parseLabelledList("2024/input_07.txt");
 
         long calibration = canEvaluateToLabel(input);
         System.out.printf("Solution Part 1: %d\n", calibration);

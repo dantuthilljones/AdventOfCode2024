@@ -9,7 +9,7 @@ import static java.util.Collections.swap;
 
 public class Solver09 {
     public static void main(String[] args) {
-        var diskMap = Inputs.parseDenseIntList("input_09.txt");
+        var diskMap = Inputs.parseDenseIntList("2024/input_09.txt");
 
         long checksum = compactifyAndChecksum(diskMap);
         System.out.printf("Solution Part 1: %d\n", checksum);

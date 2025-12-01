@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 public class Solver20 {
     public static void main(String[] args) {
-        var input = Inputs.parseCharGrid("input_20.txt");
+        var input = Inputs.parseCharGrid("2024/input_20.txt");
 
         int s1 = countCheats(input, 100, 2);
         System.out.printf("Solution Part 1: %d\n", s1);

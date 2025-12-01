@@ -13,7 +13,7 @@ public class Solver03 {
 
     private static void solveFirst() {
         Pattern pattern = Pattern.compile("mul\\((\\d+),(\\d+)\\)");
-        String input = Inputs.readFile("input_03.txt");
+        String input = Inputs.readFile("2024/input_03.txt");
 
         Matcher matcher = pattern.matcher(input);
 
@@ -29,7 +29,7 @@ public class Solver03 {
 
     private static void solveSecond() {
         Pattern pattern = Pattern.compile("mul\\((\\d+),(\\d+)\\)|do\\(\\)|don't\\(\\)");
-        String input = Inputs.readFile("input_03.txt");
+        String input = Inputs.readFile("2024/input_03.txt");
 
         Matcher matcher = pattern.matcher(input);
 

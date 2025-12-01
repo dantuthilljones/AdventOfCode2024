@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Solver19 {
     public static void main(String[] args) {
-        var input = Inputs.parseTowelProblem("input_19.txt");
+        var input = Inputs.parseTowelProblem("2024/input_19.txt");
 
         int s1 = countPossibleTowelPatterns(input);
         System.out.printf("Solution Part 1: %d\n", s1);
