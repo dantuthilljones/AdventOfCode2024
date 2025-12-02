@@ -38,8 +38,6 @@ public class Solver01 {
         for (DTPair<Character, Integer> rotation : rotations) {
             int direction = rotation.getLeft().equals('L') ? -1 : 1;
             int steps = rotation.getRight() * direction;
-
-
             for (int step = steps; steps != 0; steps -= direction) {
                 current += direction;
                 while (current < 0) current += 100;
@@ -48,9 +46,7 @@ public class Solver01 {
                     zeros++;
                 }
             }
-
         }
-
         return zeros;
     }
 }

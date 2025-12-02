@@ -19,6 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.lang.Long.parseLong;
+
 public class Inputs {
     @SneakyThrows()
     public static String readFile(String path) {
@@ -113,7 +115,7 @@ public class Inputs {
         List<DTPair<Long, List<Long>>> result = new ArrayList<>();
         for (String line : lines) {
             String[] split = line.split(":");
-            long label = Long.parseLong(split[0]);
+            long label = parseLong(split[0]);
 
             List<Long> values = Arrays.stream(split[1].trim().split(" ")).map(Long::parseLong).toList();
 
@@ -144,7 +146,7 @@ public class Inputs {
         String content = readFile(file);
         List<Long> list = new ArrayList<>();
         for (String num : content.split(" ")) {
-            list.add(Long.parseLong(num));
+            list.add(parseLong(num));
         }
         return list;
     }
@@ -398,7 +400,6 @@ public class Inputs {
 
     public static List<DTPair<Character, Integer>> parseDialRotations(String file) {
         List<String> lines = readLines(file);
-
         List<DTPair<Character, Integer>> result = new ArrayList<>();
         for (String line : lines) {
             char c = line.charAt(0);
@@ -406,6 +407,21 @@ public class Inputs {
             result.add(new DTPair<>(c, rotation));
         }
 
+        return result;
+    }
+
+    public static List<Pair<Long>> parseListOfPairsWithDashes(String file) {
+        List<String> lines = readLines(file);
+
+        List<Pair<Long>> result = new ArrayList<>();
+
+        for (String line : lines) {
+            String[] pairs = StringUtils.split(line, ",");
+            for(String pair : pairs) {
+                String[] nums = StringUtils.split(pair, "-");
+                result.add(new Pair<>(parseLong(nums[0]), parseLong(nums[1])));
+            }
+        }
         return result;
     }
 }
