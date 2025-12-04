@@ -46,7 +46,7 @@ public class Grid<T> {
     }
 
     public int getWidth() {
-        return cells.get(0).size();
+        return cells.getFirst().size();
     }
 
     public int getHeight() {
@@ -168,5 +168,9 @@ public class Grid<T> {
                 consumer.accept(point, get(point));
             }
         }
+    }
+
+    public List<T> getRow(int index) {
+        return cells.get(index);
     }
 }

@@ -12,7 +12,6 @@ public class Solver02 {
         int safeReports = countSafeReports(reports, false);
         System.out.printf("Safe Reports: %d\n", safeReports);
 
-
         int safeReportsWithDampener = countSafeReports(reports, true);
         System.out.printf("Safe Reports With Dampener: %d\n", safeReportsWithDampener);
     }

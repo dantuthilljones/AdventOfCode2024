@@ -117,4 +117,16 @@ public class Point {
     public int manhattanDistance(Point other) {
         return Math.abs(x - other.getX()) + Math.abs(y - other.getY());
     }
+
+    public List<Point> getDirectNeighbors() {
+        return BASIC_DIRECTIONS.stream()
+                .map(f -> f.apply(this))
+                .toList();
+    }
+
+    public List<Point> getAllNeighbors() {
+        return ALL_DIRECTIONS.stream()
+                .map(f -> f.apply(this))
+                .toList();
+    }
 }
