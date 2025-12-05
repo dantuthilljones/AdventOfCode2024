@@ -33,5 +33,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
 /src/main/resources/2024/
 /src/main/resources/2025/
+/src/main/resources/2023/

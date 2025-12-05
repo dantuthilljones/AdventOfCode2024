@@ -33,7 +33,7 @@ public class Inputs {
     }
 
     private static Path getPath(String path) throws URISyntaxException {
-        URL url = Utils.class.getResource("/" + path);
+        URL url = Inputs.class.getResource("/" + path);
         return Paths.get(url.toURI());
     }
 
@@ -423,5 +423,46 @@ public class Inputs {
             }
         }
         return result;
+    }
+
+
+    public static List<List<Character>> parseCharLists(String file) {
+        List<String> lines = readLines(file);
+        List<List<Character>> result = new ArrayList<>();
+
+        for (String line : lines) {
+            List<Character> chars = new ArrayList<>();
+            for(char c : line.toCharArray()) {
+                chars.add(c);
+            }
+            result.add(chars);
+        }
+        return result;
+    }
+
+
+    public static DTPair<List<Pair<Long>>, List<Long>> parseIngredients(String file) {
+        List<String> lines = readLines(file);
+
+        List<Pair<Long>> ranges = new ArrayList<>();
+        List<Long> numbers = new ArrayList<>();
+
+        boolean readingLongs = false;
+
+        for (String line : lines) {
+            if(!readingLongs) {
+                if(line.isEmpty()) {
+                    readingLongs = true;
+                    continue;
+                }
+                String[] split = line.split("-");
+                long left = parseLong(split[0]);
+                long right = parseLong(split[1]);
+                ranges.add(new Pair<>(left, right));
+            } else {
+                numbers.add(parseLong(line));
+            }
+        }
+        return new DTPair<>(ranges, numbers);
     }
 }

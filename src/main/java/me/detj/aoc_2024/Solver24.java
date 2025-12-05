@@ -24,7 +24,7 @@ public class Solver24 {
         long s1 = getZNumber(input);
         System.out.printf("Solution Part 1: %d\n", s1);
 
-        String s2 = graphSolution("input_24_solution.txt");
+        String s2 = graphSolution("2024/input_24_solution.txt");
         System.out.printf("Solution Part 2: %s\n", s2);
     }
 
