@@ -105,6 +105,24 @@ public class Inputs {
         return new DTPair<>(rules, manuals);
     }
 
+
+    public static Grid<Character> parseCharGridWithPadding(String file) {
+        List<List<Character>> matrix = parseCharMatrix(file);
+
+        int maxLength = matrix.stream()
+                .mapToInt(row -> row.size())
+                .max()
+                .getAsInt();
+
+        for(List<Character> row : matrix) {
+            while(row.size() < maxLength) {
+                row.add(' ');
+            }
+        }
+
+        return new Grid<>(matrix);
+    }
+
     public static Grid<Character> parseCharGrid(String file) {
         return new Grid<>(parseCharMatrix(file));
     }
@@ -417,7 +435,7 @@ public class Inputs {
 
         for (String line : lines) {
             String[] pairs = StringUtils.split(line, ",");
-            for(String pair : pairs) {
+            for (String pair : pairs) {
                 String[] nums = StringUtils.split(pair, "-");
                 result.add(new Pair<>(parseLong(nums[0]), parseLong(nums[1])));
             }
@@ -432,7 +450,7 @@ public class Inputs {
 
         for (String line : lines) {
             List<Character> chars = new ArrayList<>();
-            for(char c : line.toCharArray()) {
+            for (char c : line.toCharArray()) {
                 chars.add(c);
             }
             result.add(chars);
@@ -450,8 +468,8 @@ public class Inputs {
         boolean readingLongs = false;
 
         for (String line : lines) {
-            if(!readingLongs) {
-                if(line.isEmpty()) {
+            if (!readingLongs) {
+                if (line.isEmpty()) {
                     readingLongs = true;
                     continue;
                 }
@@ -464,5 +482,25 @@ public class Inputs {
             }
         }
         return new DTPair<>(ranges, numbers);
+    }
+
+
+    public static List<List<String>> parseColumns(String file) {
+        List<String> lines = readLines(file);
+
+        List<List<String>> rows = new ArrayList<>();
+        for (String line : lines) {
+            line = line.trim();
+
+            List<String> row = new ArrayList<>();
+
+            for(String s : line.split(" ")) {
+                if (!s.isBlank()) {
+                    row.add(s);
+                }
+            }
+            rows.add(row);
+        }
+        return rows;
     }
 }
