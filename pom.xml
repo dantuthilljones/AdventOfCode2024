@@ -34,6 +34,19 @@
             <artifactId>commons-collections4</artifactId>
             <version>4.4</version>
         </dependency>
+<!--        https://ejml.org/wiki/index.php?title=Download-->
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-all</artifactId>
+            <version>0.44.0</version>
+        </dependency>
+
+<!--        https://choco-solver.org/docs/getting-started/-->
+        <dependency>
+            <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>4.10.14</version>
+        </dependency>
 
     </dependencies>
 </project>

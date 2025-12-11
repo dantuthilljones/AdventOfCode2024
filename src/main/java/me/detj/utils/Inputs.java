@@ -1,6 +1,8 @@
 package me.detj.utils;
 
 import lombok.SneakyThrows;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URISyntaxException;
@@ -19,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
 public class Inputs {
@@ -45,8 +48,8 @@ public class Inputs {
 
         for (String line : lines) {
             String[] row = StringUtils.split(line, "    ");
-            l0.add(Integer.parseInt(row[0]));
-            l1.add(Integer.parseInt(row[1]));
+            l0.add(parseInt(row[0]));
+            l1.add(parseInt(row[1]));
         }
         return new Pair<>(l0, l1);
     }
@@ -94,7 +97,7 @@ public class Inputs {
 
             if (start) {
                 String[] split = StringUtils.split(line, "|");
-                rules.add(Point.of(Integer.parseInt(split[0]), Integer.parseInt(split[1])));
+                rules.add(Point.of(parseInt(split[0]), parseInt(split[1])));
             } else {
                 String[] split = StringUtils.split(line, ",");
                 List<Integer> pages = Arrays.stream(split).map(Integer::parseInt).toList();
@@ -114,8 +117,8 @@ public class Inputs {
                 .max()
                 .getAsInt();
 
-        for(List<Character> row : matrix) {
-            while(row.size() < maxLength) {
+        for (List<Character> row : matrix) {
+            while (row.size() < maxLength) {
                 row.add(' ');
             }
         }
@@ -147,7 +150,7 @@ public class Inputs {
         String content = readFile(file);
         List<Integer> list = new ArrayList<>(content.length());
         for (char c : content.toCharArray()) {
-            list.add(Integer.parseInt("" + c));
+            list.add(parseInt("" + c));
         }
         return list;
     }
@@ -155,7 +158,7 @@ public class Inputs {
     public static Grid<Integer> parseDenseIntGrid(String file) {
         var chars = parseCharMatrix(file);
         List<List<Integer>> grid = chars.stream()
-                .map(row -> row.stream().map(c -> Integer.parseInt(c.toString())).collect(Collectors.toList()))
+                .map(row -> row.stream().map(c -> parseInt(c.toString())).collect(Collectors.toList()))
                 .collect(Collectors.toList());
         return new Grid<>(grid);
     }
@@ -199,7 +202,7 @@ public class Inputs {
         if (!match.matches()) {
             throw new IllegalArgumentException("Invalid line: " + line);
         }
-        return new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
+        return new Point(parseInt(match.group(1)), parseInt(match.group(2)));
     }
 
     public static List<Pair<Point>> parsePointPairs(String file) {
@@ -225,8 +228,8 @@ public class Inputs {
         if (!match.matches()) {
             throw new IllegalArgumentException("Invalid line: " + line);
         }
-        Point start = new Point(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)));
-        Point velocity = new Point(Integer.parseInt(match.group(3)), Integer.parseInt(match.group(4)));
+        Point start = new Point(parseInt(match.group(1)), parseInt(match.group(2)));
+        Point velocity = new Point(parseInt(match.group(3)), parseInt(match.group(4)));
         return new Pair<>(start, velocity);
     }
 
@@ -278,9 +281,9 @@ public class Inputs {
     public static OpcodeComputer parseComputer(String file) {
         List<String> lines = readLines(file);
 
-        int a = Integer.parseInt(getComputerInput(lines.get(0)));
-        int b = Integer.parseInt(getComputerInput(lines.get(1)));
-        int c = Integer.parseInt(getComputerInput(lines.get(2)));
+        int a = parseInt(getComputerInput(lines.get(0)));
+        int b = parseInt(getComputerInput(lines.get(1)));
+        int c = parseInt(getComputerInput(lines.get(2)));
 
         List<Integer> program = Arrays.stream(getComputerInput(lines.get(4)).split(","))
                 .map(Integer::parseInt)
@@ -294,7 +297,7 @@ public class Inputs {
                 .stream()
                 .map(line -> {
                     String[] split = line.split(",");
-                    return new Point(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+                    return new Point(parseInt(split[0]), parseInt(split[1]));
                 })
                 .toList();
     }
@@ -421,7 +424,7 @@ public class Inputs {
         List<DTPair<Character, Integer>> result = new ArrayList<>();
         for (String line : lines) {
             char c = line.charAt(0);
-            int rotation = Integer.parseInt(line.substring(1).trim());
+            int rotation = parseInt(line.substring(1).trim());
             result.add(new DTPair<>(c, rotation));
         }
 
@@ -494,7 +497,7 @@ public class Inputs {
 
             List<String> row = new ArrayList<>();
 
-            for(String s : line.split(" ")) {
+            for (String s : line.split(" ")) {
                 if (!s.isBlank()) {
                     row.add(s);
                 }
@@ -502,5 +505,59 @@ public class Inputs {
             rows.add(row);
         }
         return rows;
+    }
+
+
+    public static List<Schematic> parseSchematics(String file) {
+        return readLines(file).stream().map(Inputs::parseSchematic).toList();
+    }
+
+    private static Schematic parseSchematic(String line) {
+        String[] split = line.split(" ");
+
+        List<Boolean> indicators = Arrays.stream(split[0]
+                        .replace("[", "")
+                        .replace("]", "")
+                        .split(""))
+                .map(s -> s.equals("#"))
+                .toList();
+
+        List<List<Integer>> buttons = new ArrayList<>();
+        for (int i = 1; i < split.length - 1; i++) {
+            String[] buttonStrings = split[i]
+                    .replace("(", "")
+                    .replace(")", "")
+                    .split(",");
+            buttons.add(Arrays.stream(buttonStrings)
+                    .map(Integer::parseInt)
+                    .toList());
+        }
+
+        List<Integer> joltages = Arrays.stream(
+                        split[split.length - 1]
+                                .replace("{", "")
+                                .replace("}", "")
+                                .split(","))
+                .map(Integer::parseInt)
+                .toList();
+
+        return new Schematic(indicators, buttons, joltages);
+    }
+
+    public static List<Point3D> parse3DPoints(String file) {
+        throw new UnsupportedOperationException("Accidentally deleted!");
+    }
+
+    public static MultiValuedMap<String, String> parseCables(String file) {
+        MultiValuedMap<String, String> cables = new HashSetValuedHashMap<>();
+        for (String line : readLines(file)) {
+            String[] split = line.split(" ");
+            String from = split[0].replace(":", "");
+            for (int i = 1; i < split.length; i++) {
+                String to = split[i];
+                cables.put(from, to);
+            }
+        }
+        return cables;
     }
 }
