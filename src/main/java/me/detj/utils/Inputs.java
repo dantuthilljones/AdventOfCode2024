@@ -560,4 +560,43 @@ public class Inputs {
         }
         return cables;
     }
+
+    public static PresentFitProblem parsePresentFitProblem(String file) {
+        List<PresentFitProblem.Present> presents = new ArrayList<>();
+        List<PresentFitProblem.PresentArea> presentAreas = new ArrayList<>();
+
+        List<String> lines = readLines(file);
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.charAt(1) == ':') {
+                presents.add(parsePresent(lines, i + 1));
+                i += 4;
+            } else {
+                // Must be a problem
+                String[] split = line.split(":");
+                String[] widths = split[0].split("x");
+                int width = parseInt(widths[0]);
+                int height = parseInt(widths[1]);
+
+                String[] presentCountsStr = split[1].trim().split(" ");
+                List<Integer> presentCounts = Arrays.stream(presentCountsStr)
+                        .map(Integer::parseInt)
+                        .toList();
+                presentAreas.add(new PresentFitProblem.PresentArea(width, height, presentCounts));
+            }
+        }
+
+        return new PresentFitProblem(presents, presentAreas);
+    }
+
+    private static PresentFitProblem.Present parsePresent(List<String> lines, int startIndex) {
+        boolean[][] present = new boolean[3][3];
+        for (int i = 0; i < 3; i++) {
+            char[] chars = lines.get(startIndex + i).toCharArray();
+            for (int j = 0; j < 3; j++) {
+                present[i][j] = chars[j] == '#';
+            }
+        }
+        return new PresentFitProblem.Present(present);
+    }
 }
